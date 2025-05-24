@@ -115,6 +115,24 @@ const isKraken = window.location.search.includes("kraken=1");
 
     document.body.style.fontFamily = fontFamily;
     document.getElementById('background-image').style.filter = `blur(${blur}px)`;
+    adjustForResolution();
+  }
+
+  function adjustForResolution() {
+    const width = window.nzxt?.v1?.width;
+    const height = window.nzxt?.v1?.height;
+
+    if (width === 240 && height === 240) {
+      document.body.style.transform = "scale(0.375)";
+      document.body.style.transformOrigin = "top left";
+      document.body.style.width = "640px";
+      document.body.style.height = "640px";
+    } else {
+      document.body.style.transform = "scale(1)";
+      document.body.style.transformOrigin = "unset";
+      document.body.style.width = "";
+      document.body.style.height = "";
+    }
   }
 
   function hexToRgba(hex, opacity) {
