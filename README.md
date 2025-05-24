@@ -23,9 +23,6 @@ NZXT CAM の Web Integration 機能を使って、自由な表示が可能です
 CAMのWeb Integrationに以下URLを登録することで、Kraken上に表示できます：
 https://meteor-oo0.github.io/Meteor-Simple-Clock/
 
-また、こちらをクリックすることで即時に使用することができます。
-nzxt-cam://action/load-web-integration?url=https://meteor-oo0.github.io/Meteor-Simple-Clock/
-
 ## 💻 使用方法
 
 1. CAMの設定から「Web Integration」を有効化
