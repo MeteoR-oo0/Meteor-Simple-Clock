@@ -57,3 +57,7 @@ UI設計、JavaScript構築、エラー修正、GitHub公開設定まで幅広�
 
 MIT License（自由に改変・再配布可）
 
+## 🔗 SNS & Contact
+
+[![X (Twitter)](https://img.shields.io/badge/X-%23000000.svg?style=for-the-badge&logo=X&logoColor=white)](https://x.com/MeteoR_oo0)
+[![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@MeteoR_oo0)
