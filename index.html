@@ -10,6 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
 
 </head>
 <body>
@@ -57,6 +60,10 @@
         <option value="'Major Mono Display', monospace">Major Mono Display</option>
         <option value="'Orbitron', sans-serif">Orbitron</option>
         <option value="'Roboto', sans-serif">Roboto</option>
+        <option value="'Comfortaa', sans-serif">Comfortaa</option>
+        <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+        <option value="'Abril Fatface', cursive">Abril Fatface</option>
+
       </select>
     </div>
     <div>
@@ -94,6 +101,14 @@
     <div>
       <label>背景ぼかし:</label>
       <input type="range" id="bgBlur" min="0" max="20" value="0" />
+    </div>
+    <div>
+      <label>表示サイズ:</label>
+      <select id="scaleSelector">
+        <option value="1">640px (Kraken Elite)</option>
+        <option value="0.5">320px (Kraken Z)</option>
+        <option value="0.375">240px (Kraken, Kraken Plus)</option>
+      </select>
     </div>
     <div>
       <button id="resetSettings" style="margin-top: 10px;">設定をリセット</button>

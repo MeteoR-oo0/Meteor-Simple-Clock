@@ -110,6 +110,35 @@ const isKraken = window.location.search.includes("kraken=1");
       temps.forEach(el => el.style.fontSize = "42px");
       labels.forEach(el => el.style.fontSize = "20px");
 
+    } else if (fontFamily.includes("Comfortaa")) {
+      document.body.style.fontWeight = "700";
+      if (clock) clock.style.fontSize = "150px";
+      if (date) {
+        date.style.fontSize = "50px";
+        date.style.top = "18%";
+      }
+      temps.forEach(el => el.style.fontSize = "42px");
+      labels.forEach(el => el.style.fontSize = "20px");
+
+    } else if (fontFamily.includes("Racing Sans One")) {
+      document.body.style.fontWeight = "400";
+      if (clock) clock.style.fontSize = "160px";
+      if (date) {
+        date.style.fontSize = "52px";
+        date.style.top = "18%";
+      }
+      temps.forEach(el => el.style.fontSize = "44px");
+      labels.forEach(el => el.style.fontSize = "20px");
+
+    } else if (fontFamily.includes("Abril Fatface")) {
+      document.body.style.fontWeight = "400";
+      if (clock) clock.style.fontSize = "155px";
+      if (date) {
+        date.style.fontSize = "54px";
+        date.style.top = "18%";
+      }
+      temps.forEach(el => el.style.fontSize = "42px");
+      labels.forEach(el => el.style.fontSize = "20px");
     } else {
       document.body.style.fontWeight = "normal";
       if (clock) clock.style.fontSize = "140px";
@@ -144,26 +173,16 @@ const isKraken = window.location.search.includes("kraken=1");
     document.getElementById('background-image').style.filter = `blur(${blur}px)`;
 
     if (window.nzxt?.v1) {
-      window.nzxt.v1.onResolutionUpdate = adjustForResolution;
+      window.nzxt.v1.onResolutionUpdate = null;
     }
-    adjustForResolution();
   }
 
-  function adjustForResolution() {
-    const width = window.nzxt?.v1?.width;
-    const height = window.nzxt?.v1?.height;
+  function applyScale(scale) {
     const wrapper = document.getElementById("app-wrapper");
-
-    if (!wrapper) return;
-
-    if (width === 240 && height === 240) {
-      wrapper.style.transform = "scale(0.375)";
-    } else if (width === 320 && height === 320) {
-      wrapper.style.transform = "scale(0.5)";
-    } else {
-      wrapper.style.transform = "scale(1)";
+    if (wrapper) {
+      wrapper.style.transform = `scale(${scale})`;
     }
-}
+  }
 
 
   function hexToRgba(hex, opacity) {
@@ -230,12 +249,29 @@ const isKraken = window.location.search.includes("kraken=1");
     document.getElementById("bgOpacity").value = localStorage.getItem("bgOpacity") || "100";
     document.getElementById("bgBlur").value = localStorage.getItem("bgBlur") || "0";
     document.getElementById("fontSelector").value = localStorage.getItem("fontFamily") || "'Press Start 2P', monospace";
+    document.getElementById("scaleSelector").value = localStorage.getItem("scale") || "1";
+    applyScale(document.getElementById("scaleSelector").value);
+
     document.getElementById("textShadowToggle").checked = localStorage.getItem("textShadow") === "true";
 
     document.getElementById("colorPicker").addEventListener("input", e => {
       const v = e.target.value;
       localStorage.setItem("textColor", v);
       applyCustomizations({ textColor: v });
+    });
+
+    // フォントセレクターの初期値を設定
+    document.getElementById("fontSelector").value = localStorage.getItem("fontFamily") || "'Press Start 2P', monospace";
+
+    // フォント変更時のイベント処理
+    document.getElementById("fontSelector").addEventListener("change", (e) => {
+      const font = e.target.value;
+      localStorage.setItem("fontFamily", font);
+
+      applyCustomizations({ font });
+
+      // Kraken側に即時反映させるために通知
+      localStorage.setItem("__refresh__", Date.now().toString());
     });
 
     document.getElementById("bgColorPicker").addEventListener("input", e => {
@@ -348,11 +384,14 @@ const isKraken = window.location.search.includes("kraken=1");
       applyCustomizations({ bgBlur: v });
     });
 
-    document.getElementById("fontSelector").addEventListener("change", e => {
-      const font = e.target.value;
-      localStorage.setItem("fontFamily", font);
-      applyCustomizations({ font });
+    document.getElementById("scaleSelector").addEventListener("change", (e) => {
+      const scale = e.target.value;
+      localStorage.setItem("scale", scale);
+      applyScale(scale);
+
+      localStorage.setItem("__refresh__", Date.now().toString());
     });
+
 
     document.getElementById("textShadowToggle").addEventListener("change", (e) => {
       const enabled = e.target.checked;
@@ -380,6 +419,7 @@ const isKraken = window.location.search.includes("kraken=1");
       localStorage.setItem("bgBlur", "0");
       localStorage.setItem("fontFamily", "'Press Start 2P', monospace");
       localStorage.setItem("textShadow", "false");
+      localStorage.setItem("scale", "1");
       localStorage.setItem("__refresh__", Date.now().toString());
       location.reload();
     });
@@ -395,6 +435,8 @@ const isKraken = window.location.search.includes("kraken=1");
       font: localStorage.getItem("fontFamily")
     });
 
+    applyScale(localStorage.getItem("scale") || "1");
+
     window.addEventListener("storage", (event) => {
       if (event.key === "__refresh__") {
         applyCustomizations({
@@ -405,6 +447,9 @@ const isKraken = window.location.search.includes("kraken=1");
           bgBlur: localStorage.getItem("bgBlur") || 0,
           font: localStorage.getItem("fontFamily")
         });
+
+        applyScale(localStorage.getItem("scale") || "1");
+
       } else {
         applyCustomizations({
           textColor: localStorage.getItem("textColor"),
