@@ -3,7 +3,9 @@
 NZXT Kraken Elite 用に作成した、カスタム時計＆モニタリングUIです。  
 NZXT CAM の Web Integration 機能を使って、自由な表示が可能です。
 
-※他Krakenシリーズは動作未確認です。
+※他Krakenシリーズは仮対応です。
+
+## 🔧
 
 ## 🔧 機能一覧
 
@@ -11,7 +13,7 @@ NZXT CAM の Web Integration 機能を使って、自由な表示が可能です
 - 日付表示（例：5/24 Fri）
 - CPU / GPU / 冷却水温のリアルタイム表示
 - 背景画像・背景色の切り替え（透過・ぼかし対応）
-- フォント切り替え（Press Start 2P / Montserrat / Doto / Major Mono Display）
+- フォント切り替え　計6種
 - 秒数に連動するシークバー（秒針）
 - 文字色のカスタマイズ
 - テキストシャドウ（ON/OFF）
@@ -49,6 +51,16 @@ https://meteor-oo0.github.io/Meteor-Simple-Clock/
 
 このプロジェクトは [ChatGPT (OpenAI)] (https://chat.openai.com) を活用して開発しました。  
 UI設計、JavaScript構築、エラー修正、GitHub公開設定まで幅広く支援を受けています。
+
+## 📘 更新履歴 / Changelog
+### v1.1.0 – 解像度対応 & 新フォント追加（2025-05-25）
+- Kraken の解像度（240×240 / 320×320）に応じて 自動調整
+- フォントに Orbitron, Roboto を追加
+- 「背景画像を削除」ボタンを追加（背景設定時のみ表示）
+- 背景画像を設定すると背景透明度が自動的に100%へリセットされる仕様を追加
+- 「設定をリセット」時に確認ダイアログを表示
+
+### v1.0.0 – 初回リリース（2025-05-24）
 
 ## 📜 ライセンス
 

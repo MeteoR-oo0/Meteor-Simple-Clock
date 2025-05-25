@@ -13,7 +13,7 @@ const isKraken = window.location.search.includes("kraken=1");
       document.querySelectorAll('.dot').forEach(dot => dot.style.backgroundColor = textColor);
       document.querySelectorAll('.divider').forEach(div => {
         // ✅ dividerの背景を透明色で
-        div.style.backgroundColor = hexToRgba(textColor, 30); // 30%の透明度
+        div.style.backgroundColor = hexToRgba(textColor, 30); 
       });
       document.querySelectorAll('.second-bar').forEach(bar => {
         // ✅ 秒針バーは完全な文字色
@@ -26,6 +26,14 @@ const isKraken = window.location.search.includes("kraken=1");
     const image = bgImage !== undefined ? bgImage : localStorage.getItem("bgImage");
     if (image) {
       document.getElementById('background-image').style.backgroundImage = `url('${image}')`;
+    }
+
+    // ボタンの表示制御
+    const clearBtn = document.getElementById("clearBgImage");
+    if (image) {
+      clearBtn.style.display = "inline-block";
+    } else {
+      clearBtn.style.display = "none";
     }
 
     // 背景色・透明度
@@ -78,9 +86,29 @@ const isKraken = window.location.search.includes("kraken=1");
         date.style.fontSize = "48px";
         date.style.top = "19%";
       }
-      temps.forEach(el => el.style.fontSize = "36px");
-      labels.forEach(el => el.style.fontSize = "17px");
+      temps.forEach(el => el.style.fontSize = "40px");
+      labels.forEach(el => el.style.fontSize = "20px");
       document.body.classList.add("lowercase");
+
+    } else if (fontFamily.includes("Orbitron")) {
+      document.body.style.fontWeight = "700";
+      if (clock) clock.style.fontSize = "150px";
+      if (date) {
+        date.style.fontSize = "52px";
+        date.style.top = "18%";
+      }
+      temps.forEach(el => el.style.fontSize = "40px");
+      labels.forEach(el => el.style.fontSize = "18px");
+
+    } else if (fontFamily.includes("Roboto")) {
+      document.body.style.fontWeight = "700";
+      if (clock) clock.style.fontSize = "160px";
+      if (date) {
+        date.style.fontSize = "50px";
+        date.style.top = "18%";
+      }
+      temps.forEach(el => el.style.fontSize = "42px");
+      labels.forEach(el => el.style.fontSize = "20px");
 
     } else {
       document.body.style.fontWeight = "normal";
@@ -112,28 +140,31 @@ const isKraken = window.location.search.includes("kraken=1");
         el.classList.toggle('shadow-divider', shadowEnabled);
       });
 
-
     document.body.style.fontFamily = fontFamily;
     document.getElementById('background-image').style.filter = `blur(${blur}px)`;
+
+    if (window.nzxt?.v1) {
+      window.nzxt.v1.onResolutionUpdate = adjustForResolution;
+    }
     adjustForResolution();
   }
 
   function adjustForResolution() {
     const width = window.nzxt?.v1?.width;
     const height = window.nzxt?.v1?.height;
+    const wrapper = document.getElementById("app-wrapper");
+
+    if (!wrapper) return;
 
     if (width === 240 && height === 240) {
-      document.body.style.transform = "scale(0.375)";
-      document.body.style.transformOrigin = "top left";
-      document.body.style.width = "640px";
-      document.body.style.height = "640px";
+      wrapper.style.transform = "scale(0.375)";
+    } else if (width === 320 && height === 320) {
+      wrapper.style.transform = "scale(0.5)";
     } else {
-      document.body.style.transform = "scale(1)";
-      document.body.style.transformOrigin = "unset";
-      document.body.style.width = "";
-      document.body.style.height = "";
+      wrapper.style.transform = "scale(1)";
     }
-  }
+}
+
 
   function hexToRgba(hex, opacity) {
     const r = parseInt(hex.substring(1, 3), 16);
@@ -231,8 +262,27 @@ const isKraken = window.location.search.includes("kraken=1");
     document.getElementById("bgImageInput").addEventListener("input", e => {
       const v = e.target.value;
       localStorage.setItem("bgImage", v);
-      applyCustomizations({ bgImage: v });
+
+      const currentOpacity = localStorage.getItem("bgOpacity") || "100";
+      if (parseInt(currentOpacity) === 100) {
+        localStorage.setItem("bgOpacity", "0");
+        document.getElementById("bgOpacity").value = "0";
+      }
+
+      applyCustomizations({
+        textColor: localStorage.getItem("textColor"),
+        bgColor: localStorage.getItem("bgColor"),
+        bgImage: v,
+        bgOpacity: localStorage.getItem("bgOpacity"),
+        bgBlur: localStorage.getItem("bgBlur"),
+        font: localStorage.getItem("fontFamily")
+      });
+
+      localStorage.setItem("__refresh__", Date.now().toString());
     });
+
+
+
 
     document.getElementById("bgImageFile").addEventListener("change", e => {
       const file = e.target.files[0];
@@ -241,10 +291,49 @@ const isKraken = window.location.search.includes("kraken=1");
         reader.onload = function (event) {
           const url = event.target.result;
           localStorage.setItem("bgImage", url);
-          applyCustomizations({ bgImage: url });
+
+          // ✅ 現在の透明度が100%（= 1.0）なら、0% に変更
+          const currentOpacity = localStorage.getItem("bgOpacity") || "100";
+          if (parseInt(currentOpacity) === 100) {
+            localStorage.setItem("bgOpacity", "0");
+            document.getElementById("bgOpacity").value = "0";
+          }
+
+          applyCustomizations({
+            textColor: localStorage.getItem("textColor"),
+            bgColor: localStorage.getItem("bgColor"),
+            bgImage: url,
+            bgOpacity: localStorage.getItem("bgOpacity"),
+            bgBlur: localStorage.getItem("bgBlur"),
+            font: localStorage.getItem("fontFamily")
+          });
+
+          localStorage.setItem("__refresh__", Date.now().toString());
         };
         reader.readAsDataURL(file);
       }
+    });
+
+    document.getElementById("clearBgImage").addEventListener("click", () => {
+      // 背景画像を削除
+      localStorage.removeItem("bgImage");
+      document.getElementById("bgImageInput").value = "";
+      document.getElementById("bgImageFile").value = "";
+
+      // 背景透明度を常に100%に戻す
+      localStorage.setItem("bgOpacity", "100");
+      document.getElementById("bgOpacity").value = "100";
+
+      applyCustomizations({
+        textColor: localStorage.getItem("textColor"),
+        bgColor: localStorage.getItem("bgColor"),
+        bgImage: "", // 画像は空に戻す
+        bgOpacity: "100", // 常に100%
+        bgBlur: localStorage.getItem("bgBlur"),
+        font: localStorage.getItem("fontFamily")
+      });
+
+      localStorage.setItem("__refresh__", Date.now().toString());
     });
 
     document.getElementById("bgOpacity").addEventListener("input", e => {
@@ -279,6 +368,10 @@ const isKraken = window.location.search.includes("kraken=1");
     });
 
     document.getElementById("resetSettings").addEventListener("click", () => {
+      const confirmed = confirm("本当にすべての設定をリセットしますか？");
+
+      if (!confirmed) return;
+
       localStorage.clear();
       localStorage.setItem("textColor", "#ffffff");
       localStorage.setItem("bgColor", "#000000");

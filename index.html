@@ -2,42 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Kraken Custom Clock</title>
+  <title>Meteor Simple Clock</title>
   <link rel="stylesheet" href="css/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+
 </head>
 <body>
   <div id="background-image"></div>
   <div id="background-overlay"></div>
-  <div id="app-content">
-    <div id="date">--</div>
-    <div class="divider">
-      <div class="second-bar" id="secondBar"></div>
-    </div>
+  <div id="app-wrapper">
+    <div id="app-content">
+      <div id="date">--</div>
+      <div class="divider">
+        <div class="second-bar" id="secondBar"></div>
+      </div>
 
-    <div id="clock">
-      <span id="hour">--</span>
-      <span class="colon" id="colon">
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </span>
-      <span id="minute">--</span>
-    </div>
-    <div class="status-block">
-      <div class="status-item">
-        <div class="temp" id="cpuTemp">--</div>
-        <div class="label">CPU</div>
+      <div id="clock">
+        <span id="hour">--</span>
+        <span class="colon" id="colon">
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </span>
+        <span id="minute">--</span>
       </div>
-      <div class="status-item">
-        <div class="temp" id="gpuTemp">--</div>
-        <div class="label">GPU</div>
-      </div>
-      <div class="status-item">
-        <div class="temp" id="liqTemp">--</div>
-        <div class="label">LIQ</div>
+      <div class="status-block">
+        <div class="status-item">
+          <div class="temp" id="cpuTemp">--</div>
+          <div class="label">CPU</div>
+        </div>
+        <div class="status-item">
+          <div class="temp" id="gpuTemp">--</div>
+          <div class="label">GPU</div>
+        </div>
+        <div class="status-item">
+          <div class="temp" id="liqTemp">--</div>
+          <div class="label">LIQ</div>
+        </div>
       </div>
     </div>
   </div>
@@ -50,6 +55,8 @@
         <option value="'Montserrat', sans-serif">Montserrat</option>
         <option value="'Doto', sans-serif">Doto</option>
         <option value="'Major Mono Display', monospace">Major Mono Display</option>
+        <option value="'Orbitron', sans-serif">Orbitron</option>
+        <option value="'Roboto', sans-serif">Roboto</option>
       </select>
     </div>
     <div>
@@ -78,6 +85,9 @@
       <input type="file" id="bgImageFile" accept="image/*" />
     </div>
     <div>
+      <div style="margin-top: 6px;">
+        <button id="clearBgImage">背景画像を削除</button>
+      </div>
       <label>背景透明度:</label>
       <input type="range" id="bgOpacity" min="0" max="100" value="100" />
     </div>
