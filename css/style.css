@@ -134,6 +134,17 @@ body.kraken #app-wrapper {
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
   }
 
+#ampm {
+  position: absolute;
+  right: -0.06em;   
+  bottom: -0.95em;  
+  font-size: 0.22em;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  font-weight: 700; 
+  pointer-events: none;
+}
+
 .status-item {
   display: flex;
   flex-direction: column;
@@ -150,15 +161,40 @@ body.kraken #app-wrapper {
   letter-spacing: 1px;
 }
 
+.temps-hidden .status-item {
+  display: none;
+}
+
 #config-ui {
-  background-color: #000;
-  color: #fff !important;
-  font-family: sans-serif !important;
-  font-weight: normal !important;
   position: absolute;
-  bottom: 0;
-  right: 0;
-  text-align: left;
-  padding: 10px;
-  max-width: 320px;
+  bottom: 20px;
+  right: 20px;
+  width: 320px;
+  max-height: 90%;
+  overflow-y: auto;
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  z-index: 10;
+}
+
+#config-ui::-webkit-scrollbar {
+  width: 8px;
+}
+#config-ui::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+#config-ui .cfg-h {
+  margin: 12px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(255,255,255,0.3);
+  font-weight: 700;
+  font-size: 14px;
 }
