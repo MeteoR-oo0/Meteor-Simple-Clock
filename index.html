@@ -4,15 +4,17 @@
   <meta charset="UTF-8" />
   <title>Meteor Simple Clock</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+
 
 </head>
 <body>
@@ -57,6 +59,18 @@
   <h3 class="cfg-h">文字</h3>
 
   <div>
+    <label>日付の表記:</label>
+    <select id="dateFormat">
+      <option value="M/D ddd">M/D ddd（例: 9/9 Mon）</option>
+      <option value="YYYY/M/D ddd">YYYY/M/D ddd（例: 2025/9/9 Tue）</option>
+      <option value="D.M ddd">D.M ddd（例: 9.9 Tue）</option>
+      <option value="ddd, MMM D">ddd, MMM D（例: Tue, Sep 9）</option>
+      <option value="OFF">非表示</option>
+    </select>
+  </div>
+
+
+  <div>
     <label>フォント選択:</label>
     <select id="fontSelector">
       <option value="'Press Start 2P', monospace">Press Start 2P</option>
@@ -68,6 +82,16 @@
       <option value="'Comfortaa', sans-serif">Comfortaa</option>
       <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
       <option value="'Abril Fatface', cursive">Abril Fatface</option>
+      <option value="'Quicksand', sans-serif">Quicksand</option>
+
+    </select>
+  </div>
+
+  <div>
+    <label>フォント太さ:</label>
+    <select id="fontWeightSelector">
+      <option value="normal">Normal</option>
+      <option value="700">Bold</option>
     </select>
   </div>
 
@@ -83,15 +107,6 @@
     <input type="color" id="colorPicker" value="#ffffff" />
   </div>
 
-  <!--<div>
-    <label>表示サイズ:</label>
-    <select id="scaleSelector">
-      <option value="1">640px (Kraken Elite)</option>
-      <option value="0.5">320px (Kraken Z)</option>
-      <option value="0.375">240px (Kraken, Kraken Plus)</option>
-    </select>
-  </div>-->
-
   <div>
     <label>
       <input type="checkbox" id="toggle12Hour" />
@@ -101,10 +116,30 @@
 
   <div>
     <label>
+      <input type="checkbox" id="dotShapeToggle"> 丸ドットにする
+    </label>
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" id="toggleSecondBar">
+      秒数バーを非表示にする
+    </label>
+  </div>
+
+  <div>
+    <label>
       <input type="checkbox" id="toggleTemps" />
       CPU・GPU・LIQ表示を非表示にする
     </label>
   </div>
+
+  <div>
+    <label>文字スケール（30–100%）</label>
+    <input id="textScale" type="range" min="30" max="100" value="100">
+    <span id="textScaleVal">100%</span>
+  </div>
+
 
   <!-- ===== 背景 ===== -->
   <h3 class="cfg-h">背景</h3>
