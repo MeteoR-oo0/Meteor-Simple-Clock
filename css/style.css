@@ -54,9 +54,12 @@ body.kraken #app-wrapper {
   position: absolute;
   top: 20%;
   left: 50%;
-  transform: translateX(-50%);
-  font-size: 40px;
-  text-align: center;
+  transform: translateX(-50%);   /* 中央基準はそのまま */
+  transform-origin: center top;  /* 縮小時も中心基準でズレにくく */
+  white-space: nowrap;           /* 改行しない */
+  line-height: 1;                /* 高さのブレ防止 */
+  font-size: 40px; 
+  text-align: center;            /* 念のため中央揃え */
 }
 
 .divider {
@@ -124,7 +127,9 @@ body.kraken #app-wrapper {
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 32px;
+  justify-content: center;   /* ✅ 子要素を真ん中に集める */
+  align-items: center;
+  gap: 32px;                 /* 間隔は維持 */
   text-align: center;
 }
 
@@ -204,3 +209,7 @@ body.kraken #app-wrapper {
   font-weight: 700;
   font-size: 14px;
 }
+
+.hide-cpu .status-item:has(#cpuTemp) { display: none; }
+.hide-gpu .status-item:has(#gpuTemp) { display: none; }
+.hide-liq .status-item:has(#liqTemp) { display: none; }

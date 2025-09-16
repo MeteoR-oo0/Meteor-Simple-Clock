@@ -318,6 +318,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setSecondBarHidden(localStorage.getItem("secondBarHidden") === "true");
 
+    document.body.classList.toggle("hide-cpu", localStorage.getItem("hideCpu") === "true");
+    document.body.classList.toggle("hide-gpu", localStorage.getItem("hideGpu") === "true");
+    document.body.classList.toggle("hide-liq", localStorage.getItem("hideLiq") === "true");
+
     // apply font family & weight
     document.body.style.fontFamily = fontFamily;
     document.body.style.fontWeight = weight;
@@ -398,7 +402,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const fontSelector       = $("#fontSelector");
     const scaleSelector      = $("#scaleSelector");
     const textShadowToggle   = $("#textShadowToggle");
-    const toggleTempsEl      = $("#toggleTemps");
+    const toggleCpu = $("#toggleCpu");
+    const toggleGpu = $("#toggleGpu");
+    const toggleLiq = $("#toggleLiq");
     const twelveToggle       = $("#toggle12Hour");
     const fontWeightSelector = $("#fontWeightSelector"); // （存在時）
     const dotShapeToggle     = $("#dotShapeToggle");     // （追加UI）
@@ -420,7 +426,9 @@ document.addEventListener("DOMContentLoaded", () => {
       applyScale(scaleSelector.value);
     }
     if (textShadowToggle)   textShadowToggle.checked = localStorage.getItem("textShadow") === "true";
-    if (toggleTempsEl)      toggleTempsEl.checked    = localStorage.getItem("tempsHidden") === "true";
+    if (toggleCpu) toggleCpu.checked = localStorage.getItem("hideCpu") === "true";
+    if (toggleGpu) toggleGpu.checked = localStorage.getItem("hideGpu") === "true";
+    if (toggleLiq) toggleLiq.checked = localStorage.getItem("hideLiq") === "true";
     if (twelveToggle)       twelveToggle.checked     = localStorage.getItem("is12Hour") === "true";
     if (fontWeightSelector) fontWeightSelector.value = localStorage.getItem("fontWeight") || "normal";
     if (dotShapeToggle)     dotShapeToggle.checked   = (localStorage.getItem("dotShape") || "square") === "round";
@@ -639,10 +647,24 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("__refresh__", Date.now().toString());
     });
 
-    toggleTempsEl?.addEventListener("change", (e) => {
+    toggleCpu?.addEventListener("change", (e) => {
       const hidden = e.target.checked;
-      localStorage.setItem("tempsHidden", hidden.toString());
-      setTempsHidden(hidden);
+      localStorage.setItem("hideCpu", hidden.toString());
+      document.body.classList.toggle("hide-cpu", hidden);
+      localStorage.setItem("__refresh__", Date.now().toString()); // Kraken同期
+    });
+
+    toggleGpu?.addEventListener("change", (e) => {
+      const hidden = e.target.checked;
+      localStorage.setItem("hideGpu", hidden.toString());
+      document.body.classList.toggle("hide-gpu", hidden);
+      localStorage.setItem("__refresh__", Date.now().toString());
+    });
+
+    toggleLiq?.addEventListener("change", (e) => {
+      const hidden = e.target.checked;
+      localStorage.setItem("hideLiq", hidden.toString());
+      document.body.classList.toggle("hide-liq", hidden);
       localStorage.setItem("__refresh__", Date.now().toString());
     });
 
@@ -676,7 +698,9 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("fontWeight", "normal");
       localStorage.setItem("textShadow","false");
       localStorage.setItem("scale",     "1");
-      localStorage.setItem("tempsHidden","false");
+      localStorage.setItem("hideCpu", "false");
+      localStorage.setItem("hideGpu", "false");
+      localStorage.setItem("hideLiq", "false");
       localStorage.setItem("secondBarHidden","false");
       localStorage.setItem("is12Hour",  "false");
       localStorage.setItem("dotShape",  "square");
