@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- Cache busting: tell the browser/CAM not to reuse stale HTML/JS/CSS -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Meteor Simple Clock</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="style.css?v=20250603a" />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&display=swap" rel="stylesheet">
@@ -14,180 +18,1098 @@
   <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
-
-
 </head>
 <body>
-  <div id="background-image"></div>
-  <div id="background-overlay"></div>
-  <div id="app-wrapper">
-    <div id="app-content">
-      <div id="date">--</div>
-      <div class="divider">
-        <div class="second-bar" id="secondBar"></div>
-      </div>
+  <!-- Toast notification -->
+  <div id="toast"></div>
 
-      <div id="clock">
-        <span id="hour">--</span>
-        <span class="colon" id="colon">
-          <div class="dot"></div>
-          <div class="dot"></div>
-        </span>
-        <span id="minute">--</span>
-        <span id="ampm"></span>
+  <div id="app-wrapper">
+    <div id="background-image"></div>
+    <div id="background-overlay"></div>
+    <svg id="second-ring" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop id="ringGradA" offset="0%"  stop-color="#3b82f6" />
+          <stop id="ringGradB" offset="100%" stop-color="#a855f7" />
+        </linearGradient>
+      </defs>
+      <circle id="ringTrack" cx="50" cy="50" r="48" fill="none" stroke-width="1.4" />
+      <circle id="ringProgress" cx="50" cy="50" r="48" fill="none" stroke-width="1.4"
+              stroke-linecap="round" transform="rotate(-90 50 50)" />
+      <!-- dot-orbit mode: the moving leading dot (shown only in dot style) -->
+      <circle id="ringDot" r="2.6" cx="50" cy="2" fill="#fff" style="display:none;" />
+    </svg>
+    <div id="overlay-fx" aria-hidden="true"></div>
+    <div id="app-content">
+      <div id="custom-text" data-block="custom"></div>
+      <div id="date" data-block="date">--</div>
+      <div class="second-block" data-block="second">
+        <div class="divider">
+          <div class="second-bar" id="secondBar"></div>
+        </div>
       </div>
-      <div class="status-block">
-        <div class="status-item">
-          <div class="temp" id="cpuTemp">--</div>
+      <div class="clock-block" data-block="clock">
+        <div id="clock">
+          <span id="hour">--</span>
+          <span class="colon" id="colon">
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </span>
+          <span id="minute">--</span>
+          <span id="seconds" class="seconds"><span id="secValue">--</span></span>
+          <span id="ampm"></span>
+        </div>
+      </div>
+      <!-- Weather block -->
+      <div id="weather-block" data-block="weather" style="display:none;">
+        <span id="weather-icon"></span>
+        <span id="weather-temp"></span>
+        <span id="weather-desc"></span>
+      </div>
+      <div class="status-block" data-block="sensors">
+        <div class="status-item" data-sensor="cpu">
+          <div class="temp" id="val-cpu">--</div>
           <div class="label">CPU</div>
         </div>
-        <div class="status-item">
-          <div class="temp" id="gpuTemp">--</div>
+        <div class="status-item" data-sensor="gpu">
+          <div class="temp" id="val-gpu">--</div>
           <div class="label">GPU</div>
         </div>
-        <div class="status-item">
-          <div class="temp" id="liqTemp">--</div>
+        <div class="status-item" data-sensor="liq">
+          <div class="temp" id="val-liq">--</div>
           <div class="label">LIQ</div>
+        </div>
+        <div class="status-item" data-sensor="cpuLoad">
+          <div class="temp" id="val-cpuLoad">--</div>
+          <div class="label">CPU%</div>
+        </div>
+        <div class="status-item" data-sensor="gpuLoad">
+          <div class="temp" id="val-gpuLoad">--</div>
+          <div class="label">GPU%</div>
+        </div>
+        <div class="status-item" data-sensor="cpuFan">
+          <div class="temp" id="val-cpuFan">--</div>
+          <div class="label">CPU FAN</div>
+        </div>
+        <div class="status-item" data-sensor="gpuFan">
+          <div class="temp" id="val-gpuFan">--</div>
+          <div class="label">GPU FAN</div>
+        </div>
+        <div class="status-item" data-sensor="memGB">
+          <div class="temp" id="val-memGB">--</div>
+          <div class="label">MEM</div>
+        </div>
+        <div class="status-item" data-sensor="memPct">
+          <div class="temp" id="val-memPct">--</div>
+          <div class="label">MEM%</div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ===== CONFIG UI ===== -->
   <div id="config-ui" style="display: none;">
+    <!-- Tab bar -->
+    <div class="cfg-tabs">
+      <button class="cfg-tab active" data-tab="layout" data-i18n="tab.layout">レイアウト</button>
+      <button class="cfg-tab" data-tab="global" data-i18n="tab.global">全体</button>
+      <button class="cfg-tab" data-tab="bg" data-i18n="tab.bg">背景</button>
+      <button class="cfg-tab" data-tab="reset">⚙</button>
+    </div>
 
-  <!-- ===== 文字 ===== -->
-  <h3 class="cfg-h">文字</h3>
+    <!-- Tab: レイアウト (hub) -->
+    <div class="cfg-panel active" id="tab-layout">
+      <p class="cfg-hint" style="margin-bottom:10px;" data-i18n="hint.layout">≡ をドラッグで並べ替え／名前をタップで詳細設定。</p>
+      <ul class="cfg-reorder" id="layoutReorder">
 
-  <div>
-    <label>日付の表記:</label>
-    <select id="dateFormat">
-      <option value="M/D ddd">M/D ddd（例: 9/9 Mon）</option>
-      <option value="YYYY/M/D ddd">YYYY/M/D ddd（例: 2025/9/9 Tue）</option>
-      <option value="D.M ddd">D.M ddd（例: 9.9 Tue）</option>
-      <option value="ddd, MMM D">ddd, MMM D（例: Tue, Sep 9）</option>
-      <option value="OFF">非表示</option>
-    </select>
+        <!-- 日付 -->
+        <li class="cfg-reorder-item cfg-hub-item" data-key="date">
+          <div class="cfg-hub-header">
+            <span class="cfg-reorder-handle"><span></span><span></span><span></span></span>
+            <span class="cfg-hub-name" data-i18n="block.date">日付</span>
+            <span class="cfg-hub-chevron"></span>
+          </div>
+          <div class="cfg-hub-detail">
+            <div class="cfg-row">
+              <label class="cfg-label" data-i18n="label.format">表記</label>
+              <select id="dateFormat" class="cfg-select">
+                <option value="M/D ddd">M/D ddd</option>
+                <option value="YYYY/M/D ddd">YYYY/M/D ddd</option>
+                <option value="D.M ddd">D.M ddd</option>
+                <option value="ddd, MMM D">ddd, MMM D</option>
+              </select>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="advDate" class="cfg-checkbox cfg-adv-toggle" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="adv.sizeMargin">詳細設定</span>
+              </label>
+            </div>
+            <div class="cfg-adv-detail" id="advDetailDate">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.font">フォント</label>
+                <select id="font_date" class="cfg-select cfg-blockfont">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="'Press Start 2P', monospace">Press Start 2P</option>
+                  <option value="'Montserrat', sans-serif">Montserrat</option>
+                  <option value="'Doto', sans-serif">Doto</option>
+                  <option value="'Major Mono Display', monospace">Major Mono Display</option>
+                  <option value="'Orbitron', sans-serif">Orbitron</option>
+                  <option value="'Roboto', sans-serif">Roboto</option>
+                  <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                  <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+                  <option value="'Abril Fatface', cursive">Abril Fatface</option>
+                  <option value="'Quicksand', sans-serif">Quicksand</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.weight">太さ</label>
+                <div class="cfg-segment cfg-blockweight" id="weightSeg_date" role="group">
+                  <button type="button" class="cfg-seg-btn" data-val="">既定</button>
+                  <button type="button" class="cfg-seg-btn" data-val="300">L</button>
+                  <button type="button" class="cfg-seg-btn" data-val="normal">N</button>
+                  <button type="button" class="cfg-seg-btn" data-val="700">B</button>
+                  <button type="button" class="cfg-seg-btn" data-val="900">Bk</button>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.color">色</label>
+                <div class="cfg-blockcolor-wrap">
+                  <label class="cfg-mini-toggle">
+                    <input type="checkbox" id="colorUse_date" class="cfg-checkbox cfg-blockcolor-use" />
+                    <span data-i18n="opt.colorOverride">個別指定</span>
+                  </label>
+                  <input type="color" id="color_date" value="#ffffff" class="cfg-color cfg-blockcolor" />
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+                <select id="blend_date" class="cfg-select cfg-blockblend">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="normal" data-i18n="blend.normal">通常</option>
+                  <option value="multiply" data-i18n="blend.multiply">乗算</option>
+                  <option value="screen" data-i18n="blend.screen">スクリーン</option>
+                  <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+                  <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+                  <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+                  <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+                  <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+                  <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+                  <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+                  <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+                </select>
+              </div>
+
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.size">サイズ</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="sizeDate" min="50" max="200" value="100" class="cfg-slider">
+                  <span id="sizeDateVal" class="cfg-slider-val">100%</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginTop">上の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginTop_date" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginTop_dateVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginBottom">下の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginBottom_date" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginBottom_dateVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- 時計 -->
+        <li class="cfg-reorder-item cfg-hub-item" data-key="clock">
+          <div class="cfg-hub-header">
+            <span class="cfg-reorder-handle"><span></span><span></span><span></span></span>
+            <span class="cfg-hub-name" data-i18n="block.clock">時計</span>
+            <span class="cfg-hub-chevron"></span>
+          </div>
+          <div class="cfg-hub-detail">
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="toggle12Hour" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.12h">12時間表示 (AM/PM)</span>
+              </label>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="toggleSeconds" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.showSeconds">秒数を表示する</span>
+              </label>
+            </div>
+            <div class="cfg-row">
+              <label class="cfg-label" data-i18n="label.digitAnim">数字アニメ</label>
+              <select id="digitAnim" class="cfg-select">
+                <option value="none" data-i18n="anim.none">なし</option>
+                <option value="fade" data-i18n="anim.fade">フェード</option>
+                <option value="blur" data-i18n="anim.blur">ブラー</option>
+                <option value="roll" data-i18n="anim.roll">ロール（数取器）</option>
+                <option value="drum" data-i18n="anim.drum">ドラム（数取器）</option>
+                <option value="flap" data-i18n="anim.flap">パタパタ（反転フラップ）</option>
+                <option value="crossfade" data-i18n="anim.crossfade">重なり（クロスフェード）</option>
+              </select>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="dotShapeToggle" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.roundDot">コロンを丸ドットにする</span>
+              </label>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="advClock" class="cfg-checkbox cfg-adv-toggle" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="adv.sizeMargin">詳細設定</span>
+              </label>
+            </div>
+            <div class="cfg-adv-detail" id="advDetailClock">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.font">フォント</label>
+                <select id="font_clock" class="cfg-select cfg-blockfont">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="'Press Start 2P', monospace">Press Start 2P</option>
+                  <option value="'Montserrat', sans-serif">Montserrat</option>
+                  <option value="'Doto', sans-serif">Doto</option>
+                  <option value="'Major Mono Display', monospace">Major Mono Display</option>
+                  <option value="'Orbitron', sans-serif">Orbitron</option>
+                  <option value="'Roboto', sans-serif">Roboto</option>
+                  <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                  <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+                  <option value="'Abril Fatface', cursive">Abril Fatface</option>
+                  <option value="'Quicksand', sans-serif">Quicksand</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.weight">太さ</label>
+                <div class="cfg-segment cfg-blockweight" id="weightSeg_clock" role="group">
+                  <button type="button" class="cfg-seg-btn" data-val="">既定</button>
+                  <button type="button" class="cfg-seg-btn" data-val="300">L</button>
+                  <button type="button" class="cfg-seg-btn" data-val="normal">N</button>
+                  <button type="button" class="cfg-seg-btn" data-val="700">B</button>
+                  <button type="button" class="cfg-seg-btn" data-val="900">Bk</button>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.color">色</label>
+                <div class="cfg-blockcolor-wrap">
+                  <label class="cfg-mini-toggle">
+                    <input type="checkbox" id="colorUse_clock" class="cfg-checkbox cfg-blockcolor-use" />
+                    <span data-i18n="opt.colorOverride">個別指定</span>
+                  </label>
+                  <input type="color" id="color_clock" value="#ffffff" class="cfg-color cfg-blockcolor" />
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+                <select id="blend_clock" class="cfg-select cfg-blockblend">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="normal" data-i18n="blend.normal">通常</option>
+                  <option value="multiply" data-i18n="blend.multiply">乗算</option>
+                  <option value="screen" data-i18n="blend.screen">スクリーン</option>
+                  <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+                  <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+                  <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+                  <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+                  <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+                  <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+                  <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+                  <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+                </select>
+              </div>
+
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.size">サイズ</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="sizeClock" min="50" max="200" value="100" class="cfg-slider">
+                  <span id="sizeClockVal" class="cfg-slider-val">100%</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginTop">上の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginTop_clock" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginTop_clockVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginBottom">下の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginBottom_clock" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginBottom_clockVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- 秒バー -->
+        <li class="cfg-reorder-item cfg-hub-item" data-key="second">
+          <div class="cfg-hub-header">
+            <span class="cfg-reorder-handle"><span></span><span></span><span></span></span>
+            <span class="cfg-hub-name" data-i18n="block.second">秒バー</span>
+            <span class="cfg-hub-chevron"></span>
+          </div>
+          <div class="cfg-hub-detail">
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="secondGrow" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.secondGrow">秒ごとに伸ばす（オフで常に満タン）</span>
+              </label>
+            </div>
+            <div class="cfg-row" id="secondMotionRow">
+              <label class="cfg-label" data-i18n="label.secondMotion">進行の動き</label>
+              <select id="secondMotion" class="cfg-select">
+                <option value="smooth" data-i18n="motion.smooth">スムーズ（連続）</option>
+                <option value="tick" data-i18n="motion.tick">1秒ごと（カチッ）</option>
+                <option value="ease" data-i18n="motion.ease">ゆっくり（イーズ）</option>
+              </select>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="secondColorSync" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.secondColorSync">進行色を文字色に合わせる</span>
+              </label>
+            </div>
+            <div class="cfg-row" id="secondColorRow">
+              <label class="cfg-label" data-i18n="label.secondColor">進行の色</label>
+              <div class="cfg-color-wrap">
+                <input type="color" id="secondColorPicker" value="#ffffff" class="cfg-color" />
+                <span id="secondColorVal">#ffffff</span>
+              </div>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="advSecond" class="cfg-checkbox cfg-adv-toggle" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="adv.margin">詳細設定</span>
+              </label>
+            </div>
+            <div class="cfg-adv-detail" id="advDetailSecond">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.color">色</label>
+                <div class="cfg-blockcolor-wrap">
+                  <label class="cfg-mini-toggle">
+                    <input type="checkbox" id="colorUse_second" class="cfg-checkbox cfg-blockcolor-use" />
+                    <span data-i18n="opt.colorOverride">個別指定</span>
+                  </label>
+                  <input type="color" id="color_second" value="#ffffff" class="cfg-color cfg-blockcolor" />
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+                <select id="blend_second" class="cfg-select cfg-blockblend">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="normal" data-i18n="blend.normal">通常</option>
+                  <option value="multiply" data-i18n="blend.multiply">乗算</option>
+                  <option value="screen" data-i18n="blend.screen">スクリーン</option>
+                  <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+                  <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+                  <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+                  <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+                  <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+                  <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+                  <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+                  <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.barLength">長さ</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="barLength" min="20" max="100" value="70" class="cfg-slider">
+                  <span id="barLengthVal" class="cfg-slider-val">70%</span>
+                </div>
+              </div>
+
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginTop">上の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginTop_second" min="0" max="200" value="10" class="cfg-slider">
+                  <span id="marginTop_secondVal" class="cfg-slider-val">10px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginBottom">下の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginBottom_second" min="0" max="200" value="10" class="cfg-slider">
+                  <span id="marginBottom_secondVal" class="cfg-slider-val">10px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- 天気 -->
+        <li class="cfg-reorder-item cfg-hub-item" data-key="weather">
+          <div class="cfg-hub-header">
+            <span class="cfg-reorder-handle"><span></span><span></span><span></span></span>
+            <span class="cfg-hub-name" data-i18n="block.weather">天気</span>
+            <span class="cfg-hub-chevron"></span>
+          </div>
+          <div class="cfg-hub-detail">
+            <div id="weatherOptions">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.city">都市名 (英語)</label>
+                <input type="text" id="weatherCity" placeholder="Tokyo" data-i18n-ph="ph.city" class="cfg-input" />
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.unit">単位</label>
+                <select id="weatherUnit" class="cfg-select">
+                  <option value="metric" data-i18n="unit.c">°C (摂氏)</option>
+                  <option value="imperial" data-i18n="unit.f">°F (華氏)</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <button id="fetchWeatherBtn" type="button" class="cfg-btn" data-i18n="btn.fetchWeather">天気を取得</button>
+                <span id="weatherStatus" class="cfg-hint"></span>
+              </div>
+              <div class="cfg-row">
+                <span id="weatherLastUpdated" class="cfg-hint" data-i18n="weather.lastNever">最終更新: まだ取得していません</span>
+              </div>
+              <div class="cfg-row">
+                <span class="cfg-hint" data-i18n="weather.autoUpdate">1時間ごとに自動更新されます。</span>
+              </div>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="advWeather" class="cfg-checkbox cfg-adv-toggle" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="adv.sizeMargin">詳細設定</span>
+              </label>
+            </div>
+            <div class="cfg-adv-detail" id="advDetailWeather">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.font">フォント</label>
+                <select id="font_weather" class="cfg-select cfg-blockfont">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="'Press Start 2P', monospace">Press Start 2P</option>
+                  <option value="'Montserrat', sans-serif">Montserrat</option>
+                  <option value="'Doto', sans-serif">Doto</option>
+                  <option value="'Major Mono Display', monospace">Major Mono Display</option>
+                  <option value="'Orbitron', sans-serif">Orbitron</option>
+                  <option value="'Roboto', sans-serif">Roboto</option>
+                  <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                  <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+                  <option value="'Abril Fatface', cursive">Abril Fatface</option>
+                  <option value="'Quicksand', sans-serif">Quicksand</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.weight">太さ</label>
+                <div class="cfg-segment cfg-blockweight" id="weightSeg_weather" role="group">
+                  <button type="button" class="cfg-seg-btn" data-val="">既定</button>
+                  <button type="button" class="cfg-seg-btn" data-val="300">L</button>
+                  <button type="button" class="cfg-seg-btn" data-val="normal">N</button>
+                  <button type="button" class="cfg-seg-btn" data-val="700">B</button>
+                  <button type="button" class="cfg-seg-btn" data-val="900">Bk</button>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.color">色</label>
+                <div class="cfg-blockcolor-wrap">
+                  <label class="cfg-mini-toggle">
+                    <input type="checkbox" id="colorUse_weather" class="cfg-checkbox cfg-blockcolor-use" />
+                    <span data-i18n="opt.colorOverride">個別指定</span>
+                  </label>
+                  <input type="color" id="color_weather" value="#ffffff" class="cfg-color cfg-blockcolor" />
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+                <select id="blend_weather" class="cfg-select cfg-blockblend">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="normal" data-i18n="blend.normal">通常</option>
+                  <option value="multiply" data-i18n="blend.multiply">乗算</option>
+                  <option value="screen" data-i18n="blend.screen">スクリーン</option>
+                  <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+                  <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+                  <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+                  <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+                  <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+                  <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+                  <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+                  <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+                </select>
+              </div>
+
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.size">サイズ</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="sizeWeather" min="50" max="200" value="100" class="cfg-slider">
+                  <span id="sizeWeatherVal" class="cfg-slider-val">100%</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginTop">上の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginTop_weather" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginTop_weatherVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginBottom">下の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginBottom_weather" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginBottom_weatherVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- センサー -->
+        <li class="cfg-reorder-item cfg-hub-item" data-key="sensors">
+          <div class="cfg-hub-header">
+            <span class="cfg-reorder-handle"><span></span><span></span><span></span></span>
+            <span class="cfg-hub-name" data-i18n="block.sensors">センサー (CPU/GPU/LIQ)</span>
+            <span class="cfg-hub-chevron"></span>
+          </div>
+          <div class="cfg-hub-detail">
+            <p class="cfg-hint" style="margin-bottom:8px;" data-i18n="hint.sensors">カードを左右にドラッグで並べ替え／「非表示」へドラッグで隠す。表示は最大3つ（4つ目を入れると一番左が押し出されます）。値が出ない項目はお使いの環境が対応していません。</p>
+            <div class="cfg-sensor-zonelabel" id="sensorVisibleLabel" data-i18n="sensors.visibleLabel">表示（最大3つ）</div>
+            <ul class="cfg-sensor-zone" id="sensorVisible">
+              <li class="cfg-sensor-card" data-key="cpu">
+                <span class="cfg-sensor-name" data-i18n="sensor.cpu">CPU 温度</span>
+              </li>
+              <li class="cfg-sensor-card" data-key="gpu">
+                <span class="cfg-sensor-name" data-i18n="sensor.gpu">GPU 温度</span>
+              </li>
+              <li class="cfg-sensor-card" data-key="liq">
+                <span class="cfg-sensor-name" data-i18n="sensor.liq">LIQ 液温</span>
+              </li>
+            </ul>
+            <div class="cfg-sensor-zonelabel" id="sensorHiddenLabel" data-i18n="label.hidden">非表示</div>
+            <ul class="cfg-sensor-zone cfg-sensor-zone-hidden" id="sensorHidden">
+              <li class="cfg-sensor-card" data-key="cpuLoad">
+                <span class="cfg-sensor-name" data-i18n="sensor.cpuLoad">CPU 負荷</span>
+              </li>
+              <li class="cfg-sensor-card" data-key="gpuLoad">
+                <span class="cfg-sensor-name" data-i18n="sensor.gpuLoad">GPU 負荷</span>
+              </li>
+              <li class="cfg-sensor-card" data-key="cpuFan">
+                <span class="cfg-sensor-name" data-i18n="sensor.cpuFan">CPU ファン</span>
+              </li>
+              <li class="cfg-sensor-card" data-key="gpuFan">
+                <span class="cfg-sensor-name" data-i18n="sensor.gpuFan">GPU ファン</span>
+              </li>
+              <li class="cfg-sensor-card" data-key="memGB">
+                <span class="cfg-sensor-name" data-i18n="sensor.memGB">メモリ使用量</span>
+              </li>
+              <li class="cfg-sensor-card" data-key="memPct">
+                <span class="cfg-sensor-name" data-i18n="sensor.memPct">メモリ使用率</span>
+              </li>
+            </ul>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="advSensors" class="cfg-checkbox cfg-adv-toggle" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="adv.sizeMargin">詳細設定</span>
+              </label>
+            </div>
+            <div class="cfg-adv-detail" id="advDetailSensors">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.font">フォント</label>
+                <select id="font_sensors" class="cfg-select cfg-blockfont">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="'Press Start 2P', monospace">Press Start 2P</option>
+                  <option value="'Montserrat', sans-serif">Montserrat</option>
+                  <option value="'Doto', sans-serif">Doto</option>
+                  <option value="'Major Mono Display', monospace">Major Mono Display</option>
+                  <option value="'Orbitron', sans-serif">Orbitron</option>
+                  <option value="'Roboto', sans-serif">Roboto</option>
+                  <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                  <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+                  <option value="'Abril Fatface', cursive">Abril Fatface</option>
+                  <option value="'Quicksand', sans-serif">Quicksand</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.weight">太さ</label>
+                <div class="cfg-segment cfg-blockweight" id="weightSeg_sensors" role="group">
+                  <button type="button" class="cfg-seg-btn" data-val="">既定</button>
+                  <button type="button" class="cfg-seg-btn" data-val="300">L</button>
+                  <button type="button" class="cfg-seg-btn" data-val="normal">N</button>
+                  <button type="button" class="cfg-seg-btn" data-val="700">B</button>
+                  <button type="button" class="cfg-seg-btn" data-val="900">Bk</button>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.color">色</label>
+                <div class="cfg-blockcolor-wrap">
+                  <label class="cfg-mini-toggle">
+                    <input type="checkbox" id="colorUse_sensors" class="cfg-checkbox cfg-blockcolor-use" />
+                    <span data-i18n="opt.colorOverride">個別指定</span>
+                  </label>
+                  <input type="color" id="color_sensors" value="#ffffff" class="cfg-color cfg-blockcolor" />
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+                <select id="blend_sensors" class="cfg-select cfg-blockblend">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="normal" data-i18n="blend.normal">通常</option>
+                  <option value="multiply" data-i18n="blend.multiply">乗算</option>
+                  <option value="screen" data-i18n="blend.screen">スクリーン</option>
+                  <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+                  <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+                  <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+                  <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+                  <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+                  <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+                  <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+                  <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+                </select>
+              </div>
+
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.size">サイズ</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="sizeSensors" min="50" max="200" value="100" class="cfg-slider">
+                  <span id="sizeSensorsVal" class="cfg-slider-val">100%</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginTop">上の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginTop_sensors" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginTop_sensorsVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginBottom">下の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginBottom_sensors" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginBottom_sensorsVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- カスタムテキスト -->
+        <li class="cfg-reorder-item cfg-hub-item" data-key="custom">
+          <div class="cfg-hub-header">
+            <span class="cfg-reorder-handle"><span></span><span></span><span></span></span>
+            <span class="cfg-hub-name" data-i18n="block.custom">カスタムテキスト</span>
+            <span class="cfg-hub-chevron"></span>
+          </div>
+          <div class="cfg-hub-detail">
+            <div class="cfg-row">
+              <label class="cfg-label" data-i18n="label.text">テキスト</label>
+              <input type="text" id="customTextInput" placeholder="メッセージを入力..." data-i18n-ph="ph.customText" class="cfg-input" maxlength="60" />
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="advCustom" class="cfg-checkbox cfg-adv-toggle" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="adv.sizeMargin">詳細設定</span>
+              </label>
+            </div>
+            <div class="cfg-adv-detail" id="advDetailCustom">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.font">フォント</label>
+                <select id="font_custom" class="cfg-select cfg-blockfont">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="'Press Start 2P', monospace">Press Start 2P</option>
+                  <option value="'Montserrat', sans-serif">Montserrat</option>
+                  <option value="'Doto', sans-serif">Doto</option>
+                  <option value="'Major Mono Display', monospace">Major Mono Display</option>
+                  <option value="'Orbitron', sans-serif">Orbitron</option>
+                  <option value="'Roboto', sans-serif">Roboto</option>
+                  <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                  <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+                  <option value="'Abril Fatface', cursive">Abril Fatface</option>
+                  <option value="'Quicksand', sans-serif">Quicksand</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.weight">太さ</label>
+                <div class="cfg-segment cfg-blockweight" id="weightSeg_custom" role="group">
+                  <button type="button" class="cfg-seg-btn" data-val="">既定</button>
+                  <button type="button" class="cfg-seg-btn" data-val="300">L</button>
+                  <button type="button" class="cfg-seg-btn" data-val="normal">N</button>
+                  <button type="button" class="cfg-seg-btn" data-val="700">B</button>
+                  <button type="button" class="cfg-seg-btn" data-val="900">Bk</button>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.color">色</label>
+                <div class="cfg-blockcolor-wrap">
+                  <label class="cfg-mini-toggle">
+                    <input type="checkbox" id="colorUse_custom" class="cfg-checkbox cfg-blockcolor-use" />
+                    <span data-i18n="opt.colorOverride">個別指定</span>
+                  </label>
+                  <input type="color" id="color_custom" value="#ffffff" class="cfg-color cfg-blockcolor" />
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+                <select id="blend_custom" class="cfg-select cfg-blockblend">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="normal" data-i18n="blend.normal">通常</option>
+                  <option value="multiply" data-i18n="blend.multiply">乗算</option>
+                  <option value="screen" data-i18n="blend.screen">スクリーン</option>
+                  <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+                  <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+                  <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+                  <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+                  <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+                  <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+                  <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+                  <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+                </select>
+              </div>
+
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.size">サイズ</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="sizeCustom" min="50" max="200" value="100" class="cfg-slider">
+                  <span id="sizeCustomVal" class="cfg-slider-val">100%</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginTop">上の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginTop_custom" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginTop_customVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginBottom">下の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginBottom_custom" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginBottom_customVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+
+      <div class="cfg-zone-label" id="hiddenZoneLabel">
+        <span data-i18n="label.hidden">非表示</span>
+        <span class="cfg-zone-hint" data-i18n="hint.hiddenZone">ここにドラッグした要素は時計に表示されません</span>
+      </div>
+      <ul class="cfg-reorder cfg-zone-hidden" id="layoutHidden"></ul>
+    </div>
+
+    <!-- Tab: 全体 -->
+    <div class="cfg-panel" id="tab-global">
+      <p class="cfg-hint" style="margin-bottom:12px;" data-i18n="hint.global">すべてのブロック共通の設定です。個別に変えたい場合はレイアウトの各ブロックの詳細設定から。</p>
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.font">フォント</label>
+        <select id="fontSelector" class="cfg-select">
+          <option value="'Press Start 2P', monospace">Press Start 2P</option>
+          <option value="'Montserrat', sans-serif">Montserrat</option>
+          <option value="'Doto', sans-serif">Doto</option>
+          <option value="'Major Mono Display', monospace">Major Mono Display</option>
+          <option value="'Orbitron', sans-serif">Orbitron</option>
+          <option value="'Roboto', sans-serif">Roboto</option>
+          <option value="'Comfortaa', sans-serif">Comfortaa</option>
+          <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+          <option value="'Abril Fatface', cursive">Abril Fatface</option>
+          <option value="'Quicksand', sans-serif">Quicksand</option>
+        </select>
+      </div>
+
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.weight">太さ</label>
+        <div class="cfg-segment" id="fontWeightSeg" role="group">
+          <button type="button" class="cfg-seg-btn" data-val="300">Light</button>
+          <button type="button" class="cfg-seg-btn" data-val="normal">Normal</button>
+          <button type="button" class="cfg-seg-btn" data-val="700">Bold</button>
+          <button type="button" class="cfg-seg-btn" data-val="900">Black</button>
+        </div>
+      </div>
+
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.textColor">文字色</label>
+        <div class="cfg-color-wrap">
+          <input type="color" id="colorPicker" value="#ffffff" class="cfg-color" />
+          <span id="colorPickerVal">#ffffff</span>
+        </div>
+      </div>
+
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+        <select id="blendMode" class="cfg-select">
+          <option value="normal" data-i18n="blend.normal">通常</option>
+          <option value="multiply" data-i18n="blend.multiply">乗算</option>
+          <option value="screen" data-i18n="blend.screen">スクリーン</option>
+          <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+          <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+          <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+          <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+          <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+          <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+          <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+          <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+        </select>
+      </div>
+
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.textScale">文字スケール</label>
+        <div class="cfg-slider-wrap">
+          <input id="textScale" type="range" min="30" max="100" value="100" class="cfg-slider">
+          <span id="textScaleVal" class="cfg-slider-val">100%</span>
+        </div>
+      </div>
+
+      <div class="cfg-row cfg-toggle-row">
+        <label class="cfg-toggle-label">
+          <input type="checkbox" id="textShadowToggle" class="cfg-checkbox" />
+          <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+          <span data-i18n="opt.textShadow">文字に影をつける</span>
+        </label>
+      </div>
+
+      <div class="cfg-section-title" data-i18n="section.secondRing">秒リング</div>
+      <div class="cfg-row cfg-toggle-row">
+        <label class="cfg-toggle-label">
+          <input type="checkbox" id="secondRingToggle" class="cfg-checkbox" />
+          <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+          <span data-i18n="opt.secondRing">画面の縁に秒リングを表示</span>
+        </label>
+      </div>
+      <p class="cfg-hint" data-i18n="hint.secondRing">画面全体の縁を回るリングです。秒バーとは独立しており、同時に表示できます。</p>
+      <div id="ringSettings">
+        <div class="cfg-row">
+          <label class="cfg-label" data-i18n="label.ringStyle">スタイル</label>
+          <select id="ringStyle" class="cfg-select">
+            <option value="fill" data-i18n="ringStyle.fill">塗りリング</option>
+            <option value="dot" data-i18n="ringStyle.dot">ドット周回</option>
+          </select>
+        </div>
+        <div class="cfg-row cfg-toggle-row">
+          <label class="cfg-toggle-label">
+            <input type="checkbox" id="ringGrow" class="cfg-checkbox" />
+            <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+            <span data-i18n="opt.ringGrow">秒ごとに伸ばす（オフで常に満タン）</span>
+          </label>
+        </div>
+        <div class="cfg-row" id="ringMotionRow">
+          <label class="cfg-label" data-i18n="label.ringMotion">進行の動き</label>
+          <select id="ringMotion" class="cfg-select">
+            <option value="smooth" data-i18n="motion.smooth">スムーズ（連続）</option>
+            <option value="tick" data-i18n="motion.tick">1秒ごと（カチッ）</option>
+            <option value="ease" data-i18n="motion.ease">ゆっくり（イーズ）</option>
+          </select>
+        </div>
+        <div class="cfg-row">
+          <label class="cfg-label" data-i18n="label.ringColorMode">色</label>
+          <select id="ringColorMode" class="cfg-select">
+            <option value="sync" data-i18n="ringColor.sync">文字色に合わせる</option>
+            <option value="solid" data-i18n="ringColor.solid">単色</option>
+            <option value="gradient" data-i18n="ringColor.gradient">グラデーション</option>
+          </select>
+        </div>
+        <div class="cfg-row" id="ringSolidRow">
+          <label class="cfg-label" data-i18n="label.ringColor">リングの色</label>
+          <div class="cfg-color-wrap">
+            <input type="color" id="ringColorPicker" value="#ffffff" class="cfg-color" />
+            <span id="ringColorVal">#ffffff</span>
+          </div>
+        </div>
+        <div class="cfg-row" id="ringPresetRow">
+          <label class="cfg-label" data-i18n="label.ringPreset">プリセット</label>
+          <select id="ringPreset" class="cfg-select">
+            <option value="bluePurple"  data-i18n="ringPreset.bluePurple">ブルー → パープル</option>
+            <option value="cyanBlue"    data-i18n="ringPreset.cyanBlue">シアン → ブルー</option>
+            <option value="pinkPurple"  data-i18n="ringPreset.pinkPurple">ピンク → パープル</option>
+            <option value="greenCyan"   data-i18n="ringPreset.greenCyan">グリーン → シアン</option>
+            <option value="orangeRed"   data-i18n="ringPreset.orangeRed">オレンジ → レッド</option>
+            <option value="custom"      data-i18n="ringPreset.custom">カスタム</option>
+          </select>
+        </div>
+        <div class="cfg-row" id="ringGradARow">
+          <label class="cfg-label" data-i18n="label.ringGradA">開始色</label>
+          <div class="cfg-color-wrap">
+            <input type="color" id="ringGradAPicker" value="#3b82f6" class="cfg-color" />
+            <span id="ringGradAVal">#3b82f6</span>
+          </div>
+        </div>
+        <div class="cfg-row" id="ringGradBRow">
+          <label class="cfg-label" data-i18n="label.ringGradB">終了色</label>
+          <div class="cfg-color-wrap">
+            <input type="color" id="ringGradBPicker" value="#a855f7" class="cfg-color" />
+            <span id="ringGradBVal">#a855f7</span>
+          </div>
+        </div>
+        <div class="cfg-row">
+          <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+          <select id="ringBlend" class="cfg-select">
+            <option value="normal" data-i18n="blend.normal">通常</option>
+            <option value="multiply" data-i18n="blend.multiply">乗算</option>
+            <option value="screen" data-i18n="blend.screen">スクリーン</option>
+            <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+            <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+            <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+            <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+            <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+            <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+            <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+            <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab: 背景 -->
+    <div class="cfg-panel" id="tab-bg">
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.bgColor">背景色</label>
+        <div class="cfg-color-wrap">
+          <input type="color" id="bgColorPicker" value="#000000" class="cfg-color" />
+          <span id="bgColorPickerVal">#000000</span>
+        </div>
+      </div>
+
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.opacity">透明度</label>
+        <div class="cfg-slider-wrap">
+          <input type="range" id="bgOpacity" min="0" max="100" value="100" class="cfg-slider">
+          <span id="bgOpacityVal" class="cfg-slider-val">100%</span>
+        </div>
+      </div>
+
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.blur">ぼかし</label>
+        <div class="cfg-slider-wrap">
+          <input type="range" id="bgBlur" min="0" max="20" value="0" class="cfg-slider">
+          <span id="bgBlurVal" class="cfg-slider-val">0px</span>
+        </div>
+      </div>
+
+      <div class="cfg-section-title" data-i18n="section.overlay">オーバーレイ</div>
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.overlay">効果</label>
+        <select id="bgOverlay" class="cfg-select">
+          <option value="none" data-i18n="overlay.none">なし</option>
+          <option value="scanline" data-i18n="overlay.scanline">スキャンライン</option>
+          <option value="crt" data-i18n="overlay.crt">CRT</option>
+          <option value="grid" data-i18n="overlay.grid">グリッド</option>
+          <option value="dots" data-i18n="overlay.dots">ドット</option>
+          <option value="noise" data-i18n="overlay.noise">ノイズ</option>
+          <option value="vignette" data-i18n="overlay.vignette">ビネット</option>
+        </select>
+      </div>
+      <div class="cfg-row" id="overlayIntensityRow">
+        <label class="cfg-label" data-i18n="label.overlayIntensity">強さ</label>
+        <div class="cfg-slider-wrap">
+          <input type="range" id="overlayIntensity" min="10" max="100" value="50" class="cfg-slider">
+          <span id="overlayIntensityVal" class="cfg-slider-val">50%</span>
+        </div>
+      </div>
+
+      <div class="cfg-section-title" data-i18n="section.bgImage">背景画像</div>
+      <div id="bgImageFileBox" class="cfg-row">
+        <label class="cfg-file-label">
+          <input type="file" id="bgImageFile" accept="image/*" style="display:none;" />
+          <span id="bgFileNameDisplay" data-i18n="file.choose">ファイルを選択...</span>
+          <span class="cfg-file-btn">Browse</span>
+        </label>
+      </div>
+      <p class="cfg-hint" data-i18n="hint.bgLocal">ローカルの画像ファイルから選択します（縮小して保存）。</p>
+      <div class="cfg-row" style="display:block;">
+        <div class="cfg-subtitle" data-i18n="label.bgHistory">最近使った画像</div>
+        <div id="bgHistory" class="cfg-bg-history"></div>
+        <p class="cfg-hint" id="bgHistoryEmpty" data-i18n="hint.bgHistoryEmpty">まだ履歴がありません。</p>
+      </div>
+      <div class="cfg-row">
+        <button id="clearBgImage" type="button" class="cfg-btn cfg-btn-danger" style="display:none;" data-i18n="btn.clearBg">背景画像を削除</button>
+      </div>
+    </div>
+
+    <!-- Tab: リセット -->
+    <div class="cfg-panel" id="tab-reset">
+      <div class="cfg-section-title" data-i18n="section.language">言語</div>
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.language">言語</label>
+        <select id="langSelector" class="cfg-select">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <div class="cfg-section-title" data-i18n="section.previewShape">プレビュー形状</div>
+      <p class="cfg-hint" style="margin-bottom:10px;" data-i18n="hint.previewShape">お使いの Kraken に合わせてプレビューの形を切り替えます（実機の表示には影響しません）。</p>
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.model">モデル</label>
+        <select id="previewModel" class="cfg-select">
+          <option value="square" data-i18n="model.square">無印 Kraken / Plus（1.54" 正方形）</option>
+          <option value="circle" data-i18n="model.circle">Elite（2.72" 円形相当）</option>
+        </select>
+      </div>
+
+      <div class="cfg-section-title" data-i18n="section.presets">プリセット</div>
+      <div class="cfg-preset-grid">
+        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="minimal">Minimal</button>
+        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="retro">Retro</button>
+        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="neon">Neon</button>
+        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="aqua">Aqua</button>
+        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="mono">Mono</button>
+      </div>
+
+      <div class="cfg-section-title" data-i18n="section.backup">設定の保存・読込み</div>
+      <div class="cfg-backup-row">
+        <button id="exportBtn" type="button" class="cfg-btn" data-i18n="btn.export">設定をファイルに保存</button>
+        <button id="importBtn" type="button" class="cfg-btn" data-i18n="btn.import">ファイルから読込み</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none;" />
+      </div>
+
+      <div class="cfg-section-title" data-i18n="section.reset">リセット</div>
+      <p class="cfg-hint" data-i18n="hint.reset">すべての設定をデフォルトに戻します。この操作は取り消せません。</p>
+      <button id="resetSettings" type="button" class="cfg-btn cfg-btn-danger" style="margin-top:12px;" data-i18n="btn.reset">設定をリセット</button>
+    </div>
   </div>
 
-
-  <div>
-    <label>フォント選択:</label>
-    <select id="fontSelector">
-      <option value="'Press Start 2P', monospace">Press Start 2P</option>
-      <option value="'Montserrat', sans-serif">Montserrat</option>
-      <option value="'Doto', sans-serif">Doto</option>
-      <option value="'Major Mono Display', monospace">Major Mono Display</option>
-      <option value="'Orbitron', sans-serif">Orbitron</option>
-      <option value="'Roboto', sans-serif">Roboto</option>
-      <option value="'Comfortaa', sans-serif">Comfortaa</option>
-      <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
-      <option value="'Abril Fatface', cursive">Abril Fatface</option>
-      <option value="'Quicksand', sans-serif">Quicksand</option>
-
-    </select>
+  <!-- Background image crop modal -->
+  <div id="cropModal" class="crop-modal" style="display:none;">
+    <div class="crop-dialog">
+      <div class="crop-title" data-i18n="crop.title">画像を正方形に切り取り</div>
+      <div id="cropViewport" class="crop-viewport">
+        <img id="cropImg" class="crop-img" alt="" draggable="false" />
+        <div class="crop-frame"></div>
+      </div>
+      <div class="crop-row">
+        <label class="cfg-label" data-i18n="crop.zoom">ズーム</label>
+        <div class="cfg-slider-wrap">
+          <input type="range" id="cropZoom" min="100" max="300" value="100" class="cfg-slider">
+        </div>
+      </div>
+      <div class="crop-actions">
+        <button id="cropCancel" type="button" class="cfg-btn" data-i18n="crop.cancel">キャンセル</button>
+        <button id="cropApply" type="button" class="cfg-btn cfg-btn-primary" data-i18n="crop.apply">適用</button>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <label>フォント太さ:</label>
-    <select id="fontWeightSelector">
-      <option value="normal">Normal</option>
-      <option value="700">Bold</option>
-    </select>
+  <!-- Confirm dialog (replaces window.confirm) -->
+  <div id="confirmModal" class="confirm-modal" style="display:none;">
+    <div class="confirm-dialog">
+      <div id="confirmMessage" class="confirm-message"></div>
+      <div class="confirm-actions">
+        <button id="confirmCancel" type="button" class="cfg-btn" data-i18n="dialog.cancel">キャンセル</button>
+        <button id="confirmOk" type="button" class="cfg-btn cfg-btn-primary" data-i18n="dialog.ok">OK</button>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <label>
-      <input type="checkbox" id="textShadowToggle" />
-      文字に影をつける
-    </label>
-  </div>
-
-  <div>
-    <label>文字色:</label>
-    <input type="color" id="colorPicker" value="#ffffff" />
-  </div>
-
-  <div>
-    <label>
-      <input type="checkbox" id="toggle12Hour" />
-      12時間表示（AM/PM）
-    </label>
-  </div>
-
-  <div>
-    <label>
-      <input type="checkbox" id="dotShapeToggle"> 丸ドットにする
-    </label>
-  </div>
-
-  <div>
-    <label>
-      <input type="checkbox" id="toggleSecondBar">
-      秒数バーを非表示にする
-    </label>
-  </div>
-
-  <div>
-    <label><input type="checkbox" id="toggleCpu" /> CPU を非表示にする</label>
-  </div>
-  <div>
-    <label><input type="checkbox" id="toggleGpu" /> GPU を非表示にする</label>
-  </div>
-  <div>
-    <label><input type="checkbox" id="toggleLiq" /> LIQ を非表示にする</label>
-  </div>
-
-  <div>
-    <label>文字スケール（30–100%）</label>
-    <input id="textScale" type="range" min="30" max="100" value="100">
-    <span id="textScaleVal">100%</span>
-  </div>
-
-
-  <!-- ===== 背景 ===== -->
-  <h3 class="cfg-h">背景</h3>
-
-  <div>
-    <label>背景色:</label>
-    <input type="color" id="bgColorPicker" value="#000000" />
-  </div>
-
-  <div>
-    <label>背景画像の設定方法:</label><br/>
-    <input type="radio" name="bgMode" value="url" checked /> URLを入力
-    <input type="radio" name="bgMode" value="file" /> ファイルを選択
-  </div>
-
-  <div id="bgImageURLBox">
-    <input type="url" id="bgImageInput" placeholder="https://example.com/image.jpg" style="width: 80%;" />
-  </div>
-
-  <div id="bgImageFileBox" style="display: none;">
-    <input type="file" id="bgImageFile" accept="image/*" />
-  </div>
-
-  <div style="margin-top: 6px;">
-    <button id="clearBgImage" type="button">背景画像を削除</button>
-  </div>
-
-  <div>
-    <label>背景透明度:</label>
-    <input type="range" id="bgOpacity" min="0" max="100" value="100" />
-  </div>
-
-  <div>
-    <label>背景ぼかし:</label>
-    <input type="range" id="bgBlur" min="0" max="20" value="0" />
-  </div>
-
-  <!-- ===== リセット ===== -->
-  <h3 class="cfg-h">リセット</h3>
-  <button id="resetSettings" type="button" style="margin-top: 10px;">設定をリセット</button>
-
-</div>
-
-
-<script src="js/script.js"></script>
-
+  <script src="script.js?v=20250603a"></script>
 </body>
 </html>
