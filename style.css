@@ -14,15 +14,23 @@ html, body {
 /* ===== BACKGROUND ===== */
 /* Background layers live inside #app-wrapper so they track the frame in both
    round and square previews (and on the real device). */
-#background-image {
+#background-image-prev {
   position: absolute;
   inset: 0;
   z-index: 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+#background-image {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   filter: blur(0px);
-  transition: filter 0.3s;
+  transition: opacity 0.45s ease, filter 0.3s;
 }
 
 #background-overlay {
@@ -30,6 +38,7 @@ html, body {
   inset: 0;
   z-index: 1;
   background-color: rgba(0, 0, 0, 1);
+  transition: background-color 0.45s ease, opacity 0.45s ease;
 }
 
 /* ===== LAYOUT ===== */
@@ -528,6 +537,13 @@ body.fx-vignette #overlay-fx {
   cursor: pointer;
   transition: color 0.2s, background 0.2s;
   letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+/* icon-only tabs (⚙ / ⓘ) take just their own width so text tabs keep room */
+.cfg-tab-icon {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  font-size: 15px;
 }
 .cfg-tab:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.04); }
 .cfg-tab.active {
@@ -776,6 +792,9 @@ body.fx-vignette #overlay-fx {
 }
 .cfg-seg-btn:last-child { border-right: none; }
 .cfg-seg-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+/* 3ボタン以上など幅が足りない場合のコンパクト版 */
+.cfg-segment--sm { display: flex; width: 100%; }
+.cfg-segment--sm .cfg-seg-btn { flex: 1; padding: 7px 4px; font-size: 11px; }
 .cfg-seg-btn.active {
   background: rgba(120,140,255,0.35);
   color: #fff;
@@ -857,6 +876,7 @@ body.fx-vignette #overlay-fx {
 .cfg-bg-history {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 8px;
 }
 .cfg-bg-thumb {
@@ -867,12 +887,14 @@ body.fx-vignette #overlay-fx {
   background-size: cover;
   background-position: center;
   cursor: pointer;
-  border: 2px solid rgba(255,255,255,0.12);
-  transition: border-color 0.15s, transform 0.1s;
+  border: none;
+  outline: 2px solid rgba(255,255,255,0.12);
+  outline-offset: 0px;
+  transition: outline-color 0.15s, transform 0.1s;
   flex-shrink: 0;
 }
-.cfg-bg-thumb:hover { transform: scale(1.05); border-color: rgba(255,255,255,0.4); }
-.cfg-bg-thumb.active { border-color: #4a9eff; box-shadow: 0 0 0 2px rgba(74,158,255,0.5); }
+.cfg-bg-thumb:hover { transform: scale(1.05); outline-color: rgba(255,255,255,0.4); }
+.cfg-bg-thumb.active { outline-color: #4a9eff; box-shadow: 0 0 0 4px rgba(74,158,255,0.35); }
 /* little × to delete a single history entry */
 .cfg-bg-thumb-del {
   position: absolute;
@@ -1277,6 +1299,7 @@ body.preview #app-wrapper {
   box-shadow: 0 0 0 12px #1d1d22, 0 20px 60px rgba(0,0,0,.55);
   transform: none;
 }
+body.preview #background-image-prev,
 body.preview #background-image,
 body.preview #background-overlay {
   border-radius: 50%;
@@ -1297,8 +1320,9 @@ body.preview #config-ui {
 }
 
 /* layer order inside the round frame: image (back) < overlay < content (front) */
-body.preview #background-image   { z-index: 0; }
-body.preview #background-overlay { z-index: 1; }
+body.preview #background-image-prev { z-index: 0; }
+body.preview #background-image      { z-index: 1; }
+body.preview #background-overlay    { z-index: 2; }
 body.preview #app-content        { z-index: 2; position: relative; }
 
 /* Square preview (無印 Kraken / Plus: 1.54" square LCD).
@@ -1316,6 +1340,7 @@ body.preview.preview-square #app-wrapper {
 /* the centered square "screen": background image/overlay + content all clipped
    to the same inscribed square. The background layers are bumped ABOVE the
    round housing (which is opaque) so the image actually shows on the LCD. */
+body.preview.preview-square #background-image-prev,
 body.preview.preview-square #background-image,
 body.preview.preview-square #background-overlay,
 body.preview.preview-square #app-content {
@@ -1333,8 +1358,9 @@ body.preview.preview-square #app-content {
 }
 /* stacking inside the square LCD: image < overlay < content < ring < fx
    (matches the round preview: ring and fx sit above the clock content) */
-body.preview.preview-square #background-image   { z-index: 10; }
-body.preview.preview-square #background-overlay { z-index: 11; }
+body.preview.preview-square #background-image-prev { z-index: 9; }
+body.preview.preview-square #background-image      { z-index: 10; }
+body.preview.preview-square #background-overlay    { z-index: 11; }
 body.preview.preview-square #app-content        { z-index: 12; }
 body.preview.preview-square #second-ring        { z-index: 13; }
 body.preview.preview-square #overlay-fx         { z-index: 14; }
@@ -1381,6 +1407,7 @@ body.preview.preview-square #overlay-fx {
   backdrop-filter: blur(4px);
 }
 .crop-dialog {
+  font-family: 'Montserrat', sans-serif;
   background: #1a1a20;
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
@@ -1451,11 +1478,59 @@ body.preview.preview-square #overlay-fx {
 /* ===== BLEND MODE STACKING ===== */
 /* When any blend is active, free #app-content and #second-ring from their own
    stacking context (drop z-index) so their mix-blend-mode reaches the
-   background image. DOM order preserves layering: bg < overlay < ring < fx <
-   content. Applied across preview / square / device via !important. */
+   background image. Also drop z-index on the background layers so the DOM
+   order takes full control (bg-image < bg-overlay < ring < fx < content).
+   Applied across preview / square / device via !important. */
 #app-content.blend-active,
 #second-ring.blend-active {
   z-index: auto !important;
+}
+/* background layers must also lose their explicit z-index so they don't float
+   above the now-auto-z-index content/ring elements */
+body:has(.blend-active) #background-image-prev,
+body:has(.blend-active) #background-image,
+body:has(.blend-active) #background-overlay {
+  z-index: auto !important;
+}
+
+/* ===== INFO TAB ===== */
+.cfg-info-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cfg-info-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+.cfg-info-ver {
+  font-size: 12px;
+  color: #9aa0ab;
+  background: rgba(255,255,255,0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.cfg-info-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.cfg-info-links a {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  color: #cdd2db;
+  text-decoration: none;
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+}
+.cfg-info-links a:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
 }
 
 /* ===== PRESETS & BACKUP ===== */
@@ -1467,7 +1542,31 @@ body.preview.preview-square #overlay-fx {
 }
 .cfg-preset-btn {
   width: 100%;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 4px;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.cfg-preset-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+}
+.cfg-preset-btn[data-preset="default"] { font-size: 10px; }
+.cfg-preset-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
 }
 .cfg-backup-row {
   display: flex;
@@ -1488,6 +1587,7 @@ body.preview.preview-square #overlay-fx {
   backdrop-filter: blur(4px);
 }
 .confirm-dialog {
+  font-family: 'Montserrat', sans-serif;
   background: #1a1a20;
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
@@ -1532,3 +1632,127 @@ body.preview #app-content > [data-block].block-entering {
   opacity: 0;
   transform: scale(0.92);
 }
+
+/* ===== TEMP WARNING ===== */
+/* a sensor temp cell turns red (and gently pulses) when over the threshold */
+.temp.temp-warn {
+  color: #ff4d4d !important;
+  animation: tempWarnPulse 1.4s ease-in-out infinite;
+}
+@keyframes tempWarnPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+/* ===== TEXT GLOW / NEON ===== */
+/* applied to #app-wrapper when enabled; layered glow on the main text */
+#app-wrapper.text-glow #clock,
+#app-wrapper.text-glow #date,
+#app-wrapper.text-glow #ampm,
+#app-wrapper.text-glow .temp,
+#app-wrapper.text-glow .label,
+#app-wrapper.text-glow #weather-temp,
+#app-wrapper.text-glow #weather-desc,
+#app-wrapper.text-glow #custom-text {
+  text-shadow:
+    0 0 4px var(--glow-color, #fff),
+    0 0 10px var(--glow-color, #fff),
+    0 0 22px var(--glow-color, #fff);
+}
+
+#app-wrapper.text-glow #colon .dot {
+  box-shadow:
+    0 0 4px var(--glow-color, #fff),
+    0 0 10px var(--glow-color, #fff),
+    0 0 22px var(--glow-color, #fff);
+}
+
+/* ===== GRADIENT EDITOR ===== */
+.cfg-grad-editor { margin-bottom: 12px; }
+.cfg-grad-bar {
+  position: relative;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  /* the inline style sets the live gradient via JS */
+  margin-bottom: 6px;
+}
+.cfg-grad-handle {
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.5);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  padding: 0;
+  /* background-color set by JS to show the current color */
+}
+.cfg-grad-handle:hover { transform: translate(-50%, -50%) scale(1.12); }
+.cfg-grad-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+}
+.cfg-grad-hidden-input {
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Color / gradient swatches */
+.cfg-swatches-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0 2px;
+}
+.cfg-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.12s, box-shadow 0.12s;
+  outline: none;
+  padding: 0;
+}
+.cfg-swatch:hover { transform: scale(1.18); }
+.cfg-swatch.active {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(255,255,255,0.3);
+}
+.cfg-swatch--grad {
+  border-radius: 7px;
+  width: 52px;
+  height: 26px;
+}
+.cfg-swatches-center { justify-content: center; }
+/* Large standalone color picker (solid section) */
+.cfg-color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 4px;
+}
+.cfg-color-lg {
+  width: 44px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 2px;
+  background: none;
+  flex-shrink: 0;
+}
+.cfg-color-lg-val {
+  font-size: 11px;
+  font-family: monospace;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.05em;
+}
+/* Bottom breathing room for swatch rows */
+.cfg-swatches-wrap { margin-bottom: 12px; }

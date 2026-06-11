@@ -24,6 +24,7 @@
   <div id="toast"></div>
 
   <div id="app-wrapper">
+    <div id="background-image-prev"></div>
     <div id="background-image"></div>
     <div id="background-overlay"></div>
     <svg id="second-ring" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -114,7 +115,8 @@
       <button class="cfg-tab active" data-tab="layout" data-i18n="tab.layout">レイアウト</button>
       <button class="cfg-tab" data-tab="global" data-i18n="tab.global">全体</button>
       <button class="cfg-tab" data-tab="bg" data-i18n="tab.bg">背景</button>
-      <button class="cfg-tab" data-tab="reset">⚙</button>
+      <button class="cfg-tab cfg-tab-icon" data-tab="reset" aria-label="Settings">⚙</button>
+      <button class="cfg-tab cfg-tab-icon" data-tab="info" aria-label="Info">ⓘ</button>
     </div>
 
     <!-- Tab: レイアウト (hub) -->
@@ -265,6 +267,13 @@
                 <input type="checkbox" id="dotShapeToggle" class="cfg-checkbox" />
                 <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
                 <span data-i18n="opt.roundDot">コロンを丸ドットにする</span>
+              </label>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="colonBlink" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.colonBlink">コロンを点滅させる</span>
               </label>
             </div>
             <div class="cfg-row cfg-toggle-row">
@@ -620,6 +629,20 @@
               </label>
             </div>
             <div class="cfg-adv-detail" id="advDetailSensors">
+              <div class="cfg-row cfg-toggle-row">
+                <label class="cfg-toggle-label">
+                  <input type="checkbox" id="tempWarnToggle" class="cfg-checkbox" />
+                  <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                  <span data-i18n="opt.tempWarn">高温で温度を赤く表示</span>
+                </label>
+              </div>
+              <div class="cfg-row" id="tempWarnRow">
+                <label class="cfg-label" data-i18n="label.tempWarnAt">警告する温度</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="tempWarn" min="50" max="100" value="80" class="cfg-slider">
+                  <span id="tempWarnVal" class="cfg-slider-val">80°</span>
+                </div>
+              </div>
               <div class="cfg-row">
                 <label class="cfg-label" data-i18n="label.font">フォント</label>
                 <select id="font_sensors" class="cfg-select cfg-blockfont">
@@ -823,8 +846,14 @@
           <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
           <option value="'Abril Fatface', cursive">Abril Fatface</option>
           <option value="'Quicksand', sans-serif">Quicksand</option>
+          <option value="__custom__" data-i18n="opt.customFont">カスタム（PCのフォント）</option>
         </select>
       </div>
+      <div class="cfg-row" id="customFontRow">
+        <label class="cfg-label" data-i18n="label.customFont">フォント名</label>
+        <input type="text" id="customFontInput" class="cfg-input" placeholder="例: Meiryo, 游ゴシック" data-i18n-ph="ph.customFont" maxlength="60" />
+      </div>
+      <p class="cfg-hint" id="customFontHint" data-i18n="hint.customFont" style="display:none;">お使いのPCにインストールされたフォント名を入力します。Kraken実機では対応していない場合があります。</p>
 
       <div class="cfg-row">
         <label class="cfg-label" data-i18n="label.weight">太さ</label>
@@ -877,6 +906,24 @@
         </label>
       </div>
 
+      <div class="cfg-row cfg-toggle-row">
+        <label class="cfg-toggle-label">
+          <input type="checkbox" id="textGlowToggle" class="cfg-checkbox" />
+          <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+          <span data-i18n="opt.textGlow">文字を光らせる（ネオン）</span>
+        </label>
+      </div>
+      <div class="cfg-row" id="glowColorRow">
+        <label class="cfg-label" data-i18n="label.glowColor">グロー色</label>
+        <div class="cfg-color-wrap">
+          <label class="cfg-mini-toggle">
+            <input type="checkbox" id="glowColorUse" class="cfg-checkbox" />
+            <span data-i18n="opt.colorOverride">個別指定</span>
+          </label>
+          <input type="color" id="glowColor" value="#ffffff" class="cfg-color" />
+        </div>
+      </div>
+
       <div class="cfg-section-title" data-i18n="section.secondRing">秒リング</div>
       <div class="cfg-row cfg-toggle-row">
         <label class="cfg-toggle-label">
@@ -893,6 +940,13 @@
             <option value="fill" data-i18n="ringStyle.fill">塗りリング</option>
             <option value="dot" data-i18n="ringStyle.dot">ドット周回</option>
           </select>
+        </div>
+        <div class="cfg-row">
+          <label class="cfg-label" data-i18n="label.ringWidth">線の太さ</label>
+          <div class="cfg-slider-wrap">
+            <input type="range" id="ringWidth" min="0.5" max="5" step="0.1" value="1.4" class="cfg-slider">
+            <span id="ringWidthVal" class="cfg-slider-val">1.4</span>
+          </div>
         </div>
         <div class="cfg-row cfg-toggle-row">
           <label class="cfg-toggle-label">
@@ -911,43 +965,37 @@
         </div>
         <div class="cfg-row">
           <label class="cfg-label" data-i18n="label.ringColorMode">色</label>
-          <select id="ringColorMode" class="cfg-select">
-            <option value="sync" data-i18n="ringColor.sync">文字色に合わせる</option>
-            <option value="solid" data-i18n="ringColor.solid">単色</option>
-            <option value="gradient" data-i18n="ringColor.gradient">グラデーション</option>
-          </select>
-        </div>
-        <div class="cfg-row" id="ringSolidRow">
-          <label class="cfg-label" data-i18n="label.ringColor">リングの色</label>
-          <div class="cfg-color-wrap">
-            <input type="color" id="ringColorPicker" value="#ffffff" class="cfg-color" />
-            <span id="ringColorVal">#ffffff</span>
+          <div class="cfg-segment cfg-segment--sm" id="ringColorModeSeg" role="group">
+            <button type="button" class="cfg-seg-btn" data-val="sync" data-i18n="ringColor.sync">文字色に合わせる</button>
+            <button type="button" class="cfg-seg-btn" data-val="solid" data-i18n="ringColor.solid">単色</button>
+            <button type="button" class="cfg-seg-btn" data-val="gradient" data-i18n="ringColor.gradient">グラデーション</button>
           </div>
         </div>
-        <div class="cfg-row" id="ringPresetRow">
-          <label class="cfg-label" data-i18n="label.ringPreset">プリセット</label>
-          <select id="ringPreset" class="cfg-select">
-            <option value="bluePurple"  data-i18n="ringPreset.bluePurple">ブルー → パープル</option>
-            <option value="cyanBlue"    data-i18n="ringPreset.cyanBlue">シアン → ブルー</option>
-            <option value="pinkPurple"  data-i18n="ringPreset.pinkPurple">ピンク → パープル</option>
-            <option value="greenCyan"   data-i18n="ringPreset.greenCyan">グリーン → シアン</option>
-            <option value="orangeRed"   data-i18n="ringPreset.orangeRed">オレンジ → レッド</option>
-            <option value="custom"      data-i18n="ringPreset.custom">カスタム</option>
-          </select>
-        </div>
-        <div class="cfg-row" id="ringGradARow">
-          <label class="cfg-label" data-i18n="label.ringGradA">開始色</label>
-          <div class="cfg-color-wrap">
-            <input type="color" id="ringGradAPicker" value="#3b82f6" class="cfg-color" />
-            <span id="ringGradAVal">#3b82f6</span>
+        <div id="ringSolidSection">
+          <div class="cfg-color-picker-row">
+            <input type="color" id="ringColorPicker" value="#ffffff" class="cfg-color-lg" />
+            <span id="ringColorVal" class="cfg-color-lg-val">#ffffff</span>
           </div>
+          <div class="cfg-swatches-wrap cfg-swatches-center" id="ringSolidSwatches"></div>
         </div>
-        <div class="cfg-row" id="ringGradBRow">
-          <label class="cfg-label" data-i18n="label.ringGradB">終了色</label>
-          <div class="cfg-color-wrap">
-            <input type="color" id="ringGradBPicker" value="#a855f7" class="cfg-color" />
-            <span id="ringGradBVal">#a855f7</span>
+        <div id="ringGradRows">
+          <div class="cfg-grad-editor">
+            <div id="ringGradBar" class="cfg-grad-bar">
+              <button type="button" id="ringGradHandleA" class="cfg-grad-handle" aria-label="start color"></button>
+              <button type="button" id="ringGradHandleB" class="cfg-grad-handle" aria-label="end color"></button>
+            </div>
+            <div class="cfg-grad-hint" data-i18n="hint.gradHandles">ツマミをタップして色を選択</div>
+            <input type="color" id="ringGradAPicker" value="#3b82f6" class="cfg-grad-hidden-input" />
+            <input type="color" id="ringGradBPicker" value="#a855f7" class="cfg-grad-hidden-input" />
           </div>
+          <div class="cfg-row">
+            <label class="cfg-label" data-i18n="label.bgGradAngle">角度</label>
+            <div class="cfg-slider-wrap">
+              <input type="range" id="ringGradAngle" min="0" max="360" value="135" class="cfg-slider">
+              <span id="ringGradAngleVal" class="cfg-slider-val">135°</span>
+            </div>
+          </div>
+          <div class="cfg-swatches-wrap cfg-swatches-center" id="ringGradSwatches"></div>
         </div>
         <div class="cfg-row">
           <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
@@ -972,11 +1020,40 @@
     <!-- Tab: 背景 -->
     <div class="cfg-panel" id="tab-bg">
       <div class="cfg-row">
-        <label class="cfg-label" data-i18n="label.bgColor">背景色</label>
-        <div class="cfg-color-wrap">
-          <input type="color" id="bgColorPicker" value="#000000" class="cfg-color" />
-          <span id="bgColorPickerVal">#000000</span>
+        <label class="cfg-label" data-i18n="label.bgType">背景タイプ</label>
+        <div class="cfg-segment" id="bgTypeSeg" role="group">
+          <button type="button" class="cfg-seg-btn" data-val="solid" data-i18n="bgType.solid">単色</button>
+          <button type="button" class="cfg-seg-btn" data-val="gradient" data-i18n="bgType.gradient">グラデーション</button>
         </div>
+      </div>
+
+      <div id="bgSolidSection">
+        <div class="cfg-color-picker-row">
+          <input type="color" id="bgColorPicker" value="#000000" class="cfg-color-lg" />
+          <span id="bgColorPickerVal" class="cfg-color-lg-val">#000000</span>
+        </div>
+        <div class="cfg-swatches-wrap cfg-swatches-center" id="bgSolidSwatches"></div>
+      </div>
+
+      <div id="bgGradRows">
+        <div class="cfg-grad-editor">
+          <div id="bgGradBar" class="cfg-grad-bar">
+            <button type="button" id="bgGradHandleA" class="cfg-grad-handle" aria-label="start color"></button>
+            <button type="button" id="bgGradHandleB" class="cfg-grad-handle" aria-label="end color"></button>
+          </div>
+          <div class="cfg-grad-hint" data-i18n="hint.gradHandles">ツマミをタップして色を選択</div>
+          <!-- hidden native pickers, opened by tapping a handle -->
+          <input type="color" id="bgGradAPicker" value="#3b82f6" class="cfg-grad-hidden-input" />
+          <input type="color" id="bgGradBPicker" value="#a855f7" class="cfg-grad-hidden-input" />
+        </div>
+        <div class="cfg-row">
+          <label class="cfg-label" data-i18n="label.bgGradAngle">角度</label>
+          <div class="cfg-slider-wrap">
+            <input type="range" id="bgGradAngle" min="0" max="360" value="135" class="cfg-slider">
+            <span id="bgGradAngleVal" class="cfg-slider-val">135°</span>
+          </div>
+        </div>
+        <div class="cfg-swatches-wrap cfg-swatches-center" id="bgGradSwatches"></div>
       </div>
 
       <div class="cfg-row">
@@ -984,14 +1061,6 @@
         <div class="cfg-slider-wrap">
           <input type="range" id="bgOpacity" min="0" max="100" value="100" class="cfg-slider">
           <span id="bgOpacityVal" class="cfg-slider-val">100%</span>
-        </div>
-      </div>
-
-      <div class="cfg-row">
-        <label class="cfg-label" data-i18n="label.blur">ぼかし</label>
-        <div class="cfg-slider-wrap">
-          <input type="range" id="bgBlur" min="0" max="20" value="0" class="cfg-slider">
-          <span id="bgBlurVal" class="cfg-slider-val">0px</span>
         </div>
       </div>
 
@@ -1017,6 +1086,13 @@
       </div>
 
       <div class="cfg-section-title" data-i18n="section.bgImage">背景画像</div>
+      <div class="cfg-row">
+        <label class="cfg-label" data-i18n="label.blur">ぼかし</label>
+        <div class="cfg-slider-wrap">
+          <input type="range" id="bgBlur" min="0" max="20" value="0" class="cfg-slider">
+          <span id="bgBlurVal" class="cfg-slider-val">0px</span>
+        </div>
+      </div>
       <div id="bgImageFileBox" class="cfg-row">
         <label class="cfg-file-label">
           <input type="file" id="bgImageFile" accept="image/*" style="display:none;" />
@@ -1033,6 +1109,28 @@
       <div class="cfg-row">
         <button id="clearBgImage" type="button" class="cfg-btn cfg-btn-danger" style="display:none;" data-i18n="btn.clearBg">背景画像を削除</button>
       </div>
+    </div>
+
+    <!-- Tab: 情報 -->
+    <div class="cfg-panel" id="tab-info">
+      <div class="cfg-info-head">
+        <div class="cfg-info-title">Meteor Simple Clock</div>
+        <div class="cfg-info-ver">v2.1.0</div>
+      </div>
+      <p class="cfg-hint" data-i18n="info.desc">NZXT Kraken の LCD に表示するカスタム時計 &amp; モニタリング UI です。NZXT CAM の Web Integration 機能で動作します。時計・日付・秒リング・センサー・天気・カスタムテキストを自由にレイアウトし、フォント・色・グラデーション・背景画像・オーバーレイ効果などで自分好みに仕上げられます。</p>
+
+      <div class="cfg-section-title" data-i18n="info.usage">使い方</div>
+      <p class="cfg-hint" data-i18n="info.usageBody">表示を右クリック →「Configure」でこの設定画面を開けます。「レイアウト」でブロックの並べ替え・表示切替、「全体」で共通スタイル、「背景」で背景まわりを設定できます。設定は自動保存され、⚙ タブからエクスポート/インポートやリセットが行えます。</p>
+
+      <div class="cfg-section-title" data-i18n="info.links">リンク</div>
+      <div class="cfg-info-links">
+        <a href="https://github.com/MeteoR-oo0/Meteor-Simple-Clock" target="_blank" rel="noopener">⌨ GitHub</a>
+        <a href="https://x.com/MeteoR_oo0" target="_blank" rel="noopener">𝕏 @MeteoR_oo0</a>
+        <a href="https://www.youtube.com/@MeteoR_oo0" target="_blank" rel="noopener">▶ YouTube</a>
+      </div>
+
+      <div class="cfg-section-title" data-i18n="info.credit">クレジット</div>
+      <p class="cfg-hint" data-i18n="info.creditBody">制作：MeteoR ／ ライセンス：MIT（自由に改変・再配布可）。開発には Claude (Anthropic) を活用しています。</p>
     </div>
 
     <!-- Tab: リセット -->
@@ -1057,13 +1155,7 @@
       </div>
 
       <div class="cfg-section-title" data-i18n="section.presets">プリセット</div>
-      <div class="cfg-preset-grid">
-        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="minimal">Minimal</button>
-        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="retro">Retro</button>
-        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="neon">Neon</button>
-        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="aqua">Aqua</button>
-        <button type="button" class="cfg-btn cfg-preset-btn" data-preset="mono">Mono</button>
-      </div>
+      <div class="cfg-preset-grid" id="presetGrid"></div>
 
       <div class="cfg-section-title" data-i18n="section.backup">設定の保存・読込み</div>
       <div class="cfg-backup-row">

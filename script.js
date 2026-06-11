@@ -5,6 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
     "tab.layout": ["レイアウト", "Layout"],
     "tab.global": ["全体", "General"],
     "tab.bg": ["背景", "Background"],
+    "tab.info": ["情報", "Info"],
+    "info.desc": [
+      "NZXT Kraken の LCD に表示するカスタム時計 & モニタリング UI です。NZXT CAM の Web Integration 機能で動作します。時計・日付・秒リング・センサー・天気・カスタムテキストを自由にレイアウトし、フォント・色・グラデーション・背景画像・オーバーレイ効果などで自分好みに仕上げられます。",
+      "A custom clock & monitoring UI for the NZXT Kraken LCD, powered by NZXT CAM's Web Integration. Freely arrange the clock, date, second ring, sensors, weather, and custom text, then style it with fonts, colors, gradients, background images, and overlay effects."
+    ],
+    "info.usage": ["使い方", "How to use"],
+    "info.usageBody": [
+      "表示を右クリック →「Configure」でこの設定画面を開けます。「レイアウト」でブロックの並べ替え・表示切替、「全体」で共通スタイル、「背景」で背景まわりを設定できます。設定は自動保存され、⚙ タブからエクスポート/インポートやリセットが行えます。",
+      "Right-click the display → \"Configure\" to open this panel. Use \"Layout\" to reorder and toggle blocks, \"General\" for shared styles, and \"Background\" for background settings. Changes are saved automatically; export/import and reset live in the ⚙ tab."
+    ],
+    "info.links": ["リンク", "Links"],
+    "info.credit": ["クレジット", "Credits"],
+    "info.creditBody": [
+      "制作：MeteoR ／ ライセンス：MIT（自由に改変・再配布可）。開発には Claude (Anthropic) を活用しています。",
+      "By MeteoR · License: MIT (free to modify & redistribute). Built with the help of Claude (Anthropic)."
+    ],
     "hint.layout": ["≡ をドラッグで並べ替え／名前をタップで詳細設定。", "Drag ≡ to reorder / tap a name for details."],
     "hint.global": ["すべてのブロック共通の設定です。個別に変えたい場合はレイアウトの各ブロックの詳細設定から。", "Defaults for all blocks. To change one block only, use its details in the Layout tab."],
     "block.date": ["日付", "Date"],
@@ -27,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "anim.flap": ["パタパタ（反転フラップ）", "Flap (split-flap)"],
     "anim.crossfade": ["重なり（クロスフェード）", "Crossfade"],
     "opt.roundDot": ["コロンを丸ドットにする", "Round colon dots"],
+    "opt.colonBlink": ["コロンを点滅させる", "Blink colon"],
     "block.second": ["秒バー", "Second bar"],
     "opt.secondGrow": ["秒ごとに伸ばす（オフで常に満タン）", "Grow each second (off = always full)"],
     "label.secondMotion": ["進行の動き", "Motion"],
@@ -61,6 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
     "label.text": ["テキスト", "Text"],
     "hint.hiddenZone": ["ここにドラッグした要素は時計に表示されません", "Items dragged here won’t show on the clock"],
     "label.font": ["フォント", "Font"],
+    "opt.customFont": ["カスタム（PCのフォント）", "Custom (PC font)"],
+    "label.customFont": ["フォント名", "Font name"],
+    "ph.customFont": ["例: Meiryo, 游ゴシック", "e.g. Arial, Georgia"],
+    "hint.customFont": ["お使いのPCにインストールされたフォント名を入力します。Kraken実機では対応していない場合があります。", "Enter a font installed on your PC. It may not render on the Kraken device itself."],
     "label.weight": ["太さ", "Weight"],
     "label.textColor": ["文字色", "Text color"],
     "label.color": ["色", "Color"],
@@ -83,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "section.secondRing": ["秒リング", "Second ring"],
     "opt.secondRing": ["画面の縁に秒リングを表示", "Show ring around the screen edge"],
     "label.ringStyle": ["スタイル", "Style"],
+    "label.ringWidth": ["線の太さ", "Line width"],
     "label.ringColorMode": ["色", "Color"],
     "ringColor.sync": ["文字色に合わせる", "Match text color"],
     "ringColor.solid": ["単色", "Solid"],
@@ -113,6 +135,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "overlay.noise": ["ノイズ", "Noise"],
     "overlay.vignette": ["ビネット", "Vignette"],
     "label.bgColor": ["背景色", "Background color"],
+    "label.bgType": ["背景タイプ", "Background type"],
+    "bgType.solid": ["単色", "Solid"],
+    "bgType.gradient": ["グラデーション", "Gradient"],
     "label.opacity": ["透明度", "Opacity"],
     "label.blur": ["ぼかし", "Blur"],
     "section.bgImage": ["背景画像", "Background image"],
@@ -132,6 +157,16 @@ document.addEventListener("DOMContentLoaded", () => {
     "hint.reset": ["すべての設定をデフォルトに戻します。この操作は取り消せません。", "Restore all settings to defaults. This cannot be undone."],
     "btn.reset": ["設定をリセット", "Reset settings"],
     "section.language": ["言語", "Language"],
+    "section.monitoring": ["モニタリング", "Monitoring"],
+    "opt.tempWarn": ["高温で温度を赤く表示", "Highlight high temps in red"],
+    "label.tempWarnAt": ["警告する温度", "Warn at"],
+    "opt.textGlow": ["文字を光らせる（ネオン）", "Glow text (neon)"],
+    "label.glowColor": ["グロー色", "Glow color"],
+    "opt.bgGrad": ["背景グラデーション（画像なしのとき）", "Gradient background (when no image)"],
+    "label.bgGradA": ["開始色", "Start color"],
+    "label.bgGradB": ["終了色", "End color"],
+    "label.bgGradAngle": ["角度", "Angle"],
+    "hint.gradHandles": ["ツマミをタップして色を選択", "Tap a handle to pick its color"],
     "label.language": ["言語", "Language"],
     "ph.city": ["Tokyo", "Tokyo"],
     "ph.customText": ["メッセージを入力...", "Enter a message..."],
@@ -161,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "btn.export": ["設定をファイルに保存", "Export to file"],
     "btn.import": ["ファイルから読込み", "Import from file"],
     "toast.exported": ["設定を書き出しました", "Settings exported"],
+    "toast.imported": ["設定を読み込みました", "Settings imported"],
     "toast.importBad": ["読み込めませんでした（形式が不正）", "Couldn’t import (invalid file)"],
     "dialog.ok": ["OK", "OK"],
     "dialog.cancel": ["キャンセル", "Cancel"],
@@ -239,7 +275,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---- i18n helpers ----
   function getLang() {
     const v = localStorage.getItem("uiLang");
-    return v === "en" ? "en" : "ja";
+    if (v === "en") return "en";
+    if (v === "ja") return "ja";
+    // not set yet: auto-detect from the OS/browser language
+    return navigator.language?.startsWith("ja") ? "ja" : "en";
   }
   // translate a key for the current (or given) language; falls back to ja, then key
   function t(key, lang) {
@@ -312,17 +351,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // All persisted setting keys with their default values (uiLang handled
   // separately since it's a UI preference). Shared by reset / export / presets.
   const DEFAULT_SETTINGS = {
-    textColor:"#ffffff",bgColor:"#000000",bgImage:"",bgOpacity:"100",bgBlur:"0",bgPosX:"50",bgPosY:"50",bgZoom:"100",bgAspect:"1",
+    textColor:"#ffffff",bgColor:"#000000",bgImage:"",bgOpacity:"100",bgBlur:"0",bgPosX:"50",bgPosY:"50",bgZoom:"100",bgAspect:"1",colonBlink:"true",
     fontFamily:"'Press Start 2P', monospace",fontWeight:"normal",blendMode:"normal",textShadow:"false",
+    textGlow:"false",glowColor:"",glowColorUse:"false",
+    tempWarnOn:"false",tempWarn:"80",
+    bgGradOn:"false",bgGradA:"#3b82f6",bgGradB:"#a855f7",bgGradAngle:"135",bgGradPosA:"0",bgGradPosB:"100",
     secondRing:"false",secondGrow:"true",secondColorSync:"true",secondColor:"#ffffff",secondMotion:"smooth",ringMotion:"smooth",ringGrow:"true",barLength:"70",
-    ringStyle:"fill",ringColorMode:"sync",ringColor:"#ffffff",ringPreset:"bluePurple",ringGradA:"#3b82f6",ringGradB:"#a855f7",ringBlend:"normal",
+    ringStyle:"fill",ringColorMode:"sync",ringColor:"#ffffff",ringGradA:"#3b82f6",ringGradB:"#a855f7",ringGradAngle:"135",ringGradPosA:"0",ringGradPosB:"100",ringBlend:"normal",ringWidth:"1.4",
     sizeDate:"100",sizeClock:"100",sizeWeather:"100",sizeSensors:"100",sizeCustom:"100",
     marginTop_date:"0",marginBottom_date:"0",marginTop_second:"10",marginBottom_second:"10",
     marginTop_clock:"0",marginBottom_clock:"0",marginTop_weather:"0",marginBottom_weather:"0",
     marginTop_sensors:"0",marginBottom_sensors:"0",marginTop_custom:"0",marginBottom_custom:"0",
     advDate:"false",advClock:"false",advSecond:"false",advWeather:"false",advSensors:"false",advCustom:"false",
     is12Hour:"false",dotShape:"square",textScale:"100",dateFormat:"M/D ddd",
-    bgOverlay:"none",overlayIntensity:"50",customText:"",customTextPos:"top",
+    bgOverlay:"none",overlayIntensity:"50",customText:"Custom Text",customTextPos:"top",
     layoutOrder:"date,second,clock,weather,sensors,custom",
     sensorOrder:"cpu,gpu,liq,cpuLoad,gpuLoad,cpuFan,gpuFan,memGB,memPct",
     hiddenBlocks:"custom",hiddenSensors:"cpuLoad,gpuLoad,cpuFan,gpuFan,memGB,memPct",previewModel:"circle",
@@ -331,55 +373,109 @@ document.addEventListener("DOMContentLoaded", () => {
   // per-block override keys (font/weight/color/blend) for each layout block
   const BLOCK_OVERRIDE_KEYS = [];
   ["date","clock","second","weather","sensors","custom"].forEach(b => {
-    BLOCK_OVERRIDE_KEYS.push(`font_${b}`,`weight_${b}`,`color_${b}`,`colorUse_${b}`,`blend_${b}`);
+    BLOCK_OVERRIDE_KEYS.push(`font_${b}`,`customFont_${b}`,`weight_${b}`,`color_${b}`,`colorUse_${b}`,`blend_${b}`);
   });
   // every key we export = defaults + per-block overrides
   const ALL_SETTING_KEYS = Object.keys(DEFAULT_SETTINGS).concat(BLOCK_OVERRIDE_KEYS);
 
   // Built-in presets. Each is a partial set of settings applied over defaults.
   const PRESETS = {
-    minimal: {
-      label: { ja: "ミニマル", en: "Minimal" },
+    default: {
+      label: { ja: "デフォルト", en: "Default" },
+      swatch: { bg: "#000000", fg: "#ffffff", accent: "#888888", font: "'Press Start 2P', monospace" },
+      settings: {},
+    },
+    aurora: {
+      label: { ja: "オーロラ", en: "Aurora" },
+      swatch: { bg: "#020f12", fg: "#aaffd8", accent: "#00e5a8", font: "'Orbitron', sans-serif" },
       settings: {
-        fontFamily:"'Montserrat', sans-serif", fontWeight:"300", textColor:"#ffffff",
-        bgColor:"#000000", bgOpacity:"100", bgOverlay:"none", blendMode:"normal",
-        secondRing:"false", secondGrow:"true", textShadow:"false",
-        hiddenBlocks:"custom,weather,sensors", dateFormat:"M/D ddd",
+        fontFamily:"'Orbitron', sans-serif", fontWeight:"700", textColor:"#c0ffe8",
+        bgColor:"#020f12", bgOpacity:"100", bgOverlay:"none",
+        bgGradOn:"true", bgGradA:"#020f12", bgGradB:"#0d1f3c", bgGradAngle:"160",
+        secondRing:"true", ringStyle:"dot", ringColorMode:"gradient",
+        ringGradA:"#00e5a8", ringGradB:"#6c3de8", ringGradAngle:"135",
+        ringGradPosA:"0", ringGradPosB:"100",
+        ringGrow:"true", ringMotion:"smooth", blendMode:"normal",
+        textGlow:"true", glowColorUse:"true", glowColor:"#00e5a8",
+        textShadow:"false",
+      },
+    },
+    ocean: {
+      label: { ja: "オーシャン", en: "Ocean" },
+      swatch: { bg: "#010d1a", fg: "#dff4ff", accent: "#0ea5e9", font: "'Comfortaa', sans-serif" },
+      settings: {
+        fontFamily:"'Comfortaa', sans-serif", fontWeight:"700", textColor:"#dff4ff",
+        bgColor:"#010d1a", bgOpacity:"100", bgOverlay:"vignette", overlayIntensity:"40",
+        bgGradOn:"true", bgGradA:"#011830", bgGradB:"#0d4060", bgGradAngle:"180",
+        secondRing:"true", ringStyle:"fill", ringColorMode:"gradient",
+        ringGradA:"#0ea5e9", ringGradB:"#22d3ee", ringGradAngle:"135",
+        ringGradPosA:"0", ringGradPosB:"100",
+        ringGrow:"true", blendMode:"normal",
+        textGlow:"false", textShadow:"false",
       },
     },
     retro: {
       label: { ja: "レトロ", en: "Retro" },
+      swatch: { bg: "#001100", fg: "#39ff14", accent: "#39ff14", font: "'Press Start 2P', monospace" },
       settings: {
         fontFamily:"'Press Start 2P', monospace", fontWeight:"normal", textColor:"#39ff14",
         bgColor:"#001100", bgOpacity:"100", bgOverlay:"scanline", overlayIntensity:"60",
         secondRing:"true", ringStyle:"fill", ringColorMode:"solid", ringColor:"#39ff14",
-        ringBlend:"normal", textShadow:"true",
+        ringBlend:"normal", textShadow:"true", textGlow:"false", bgGradOn:"false",
       },
     },
     neon: {
       label: { ja: "ネオン", en: "Neon" },
+      swatch: { bg: "#0a0020", fg: "#ff4dff", accent: "#a855f7", font: "'Orbitron', sans-serif" },
       settings: {
         fontFamily:"'Orbitron', sans-serif", fontWeight:"700", textColor:"#ffffff",
         bgColor:"#0a0020", bgOpacity:"100", bgOverlay:"none",
         secondRing:"true", ringStyle:"dot", ringColorMode:"gradient", ringPreset:"pinkPurple",
-        ringGrow:"true", ringMotion:"smooth", textShadow:"true", blendMode:"normal",
-      },
-    },
-    aqua: {
-      label: { ja: "アクア", en: "Aqua" },
-      settings: {
-        fontFamily:"'Comfortaa', sans-serif", fontWeight:"700", textColor:"#e8feff",
-        bgColor:"#012a3a", bgOpacity:"100", bgOverlay:"none",
-        secondRing:"true", ringStyle:"fill", ringColorMode:"gradient", ringPreset:"cyanBlue",
-        ringGrow:"true", blendMode:"normal",
+        ringGrow:"true", ringMotion:"smooth", textShadow:"false", blendMode:"normal",
+        textGlow:"true", glowColorUse:"true", glowColor:"#ff4dff", bgGradOn:"false",
       },
     },
     mono: {
       label: { ja: "モノクロ", en: "Mono" },
+      swatch: { bg: "#111111", fg: "#ffffff", accent: "#666666", font: "'Roboto', sans-serif" },
       settings: {
         fontFamily:"'Roboto', sans-serif", fontWeight:"900", textColor:"#ffffff",
         bgColor:"#111111", bgOpacity:"100", bgOverlay:"dots", overlayIntensity:"30",
         secondRing:"false", secondGrow:"true", blendMode:"normal", textShadow:"false",
+        textGlow:"false", bgGradOn:"false",
+      },
+    },
+    sunset: {
+      label: { ja: "サンセット", en: "Sunset" },
+      swatch: { bg: "#3a0d2a", fg: "#fff0e0", accent: "#ff9e2c", font: "'Quicksand', sans-serif" },
+      settings: {
+        fontFamily:"'Quicksand', sans-serif", fontWeight:"700", textColor:"#fff0e0",
+        bgColor:"#3a0d2a", bgOpacity:"100", bgOverlay:"none",
+        bgGradOn:"true", bgGradA:"#ff6b6b", bgGradB:"#7b2ff7", bgGradAngle:"160",
+        secondRing:"true", ringStyle:"dot", ringColorMode:"gradient", ringPreset:"orangeRed",
+        ringGrow:"true", textShadow:"true", textGlow:"false", blendMode:"normal",
+      },
+    },
+    terminal: {
+      label: { ja: "ターミナル", en: "Terminal" },
+      swatch: { bg: "#020a02", fg: "#33ff66", accent: "#33ff66", font: "'Doto', sans-serif" },
+      settings: {
+        fontFamily:"'Doto', sans-serif", fontWeight:"700", textColor:"#33ff66",
+        bgColor:"#020a02", bgOpacity:"100", bgOverlay:"grid", overlayIntensity:"40",
+        secondRing:"false", secondGrow:"true", barLength:"90",
+        textShadow:"false", textGlow:"true", glowColorUse:"true", glowColor:"#33ff66",
+        blendMode:"normal", bgGradOn:"false", dateFormat:"ddd, MMM D",
+      },
+    },
+    sakura: {
+      label: { ja: "サクラ", en: "Sakura" },
+      swatch: { bg: "#2a0a18", fg: "#ffe3ef", accent: "#ff8fb8", font: "'Abril Fatface', cursive" },
+      settings: {
+        fontFamily:"'Abril Fatface', cursive", fontWeight:"normal", textColor:"#ffe3ef",
+        bgColor:"#2a0a18", bgOpacity:"100", bgOverlay:"none",
+        bgGradOn:"true", bgGradA:"#ff9ec4", bgGradB:"#6a2c5a", bgGradAngle:"135",
+        secondRing:"true", ringStyle:"fill", ringColorMode:"gradient", ringPreset:"pinkPurple",
+        ringGrow:"true", textShadow:"true", textGlow:"false", blendMode:"normal",
       },
     },
   };
@@ -522,28 +618,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // background
     const bgImgEl = $("#background-image");
-    if (bgImgEl) bgImgEl.style.backgroundImage = bgImage ? `url('${bgImage}')` : "none";
-    // Background framing: static images are pre-cropped to a square, so they use
-    // the defaults (center / cover). GIFs keep their original data and are framed
-    // here via position + zoom so they can be repositioned without re-encoding.
+    // priority: uploaded image > gradient (if enabled) > none
+    const gradOn = LS.get("bgGradOn", "false") === "true";
+    const gradA = LS.get("bgGradA", "#3b82f6");
+    const gradB = LS.get("bgGradB", "#a855f7");
+    const gradAngle = +LS.get("bgGradAngle", 135) || 135;
+    const gradPosA = Math.max(0, Math.min(100, +LS.get("bgGradPosA", 0)));
+    const gradPosB = Math.max(0, Math.min(100, +LS.get("bgGradPosB", 100)));
+    const gradStr = `linear-gradient(${gradAngle}deg, ${gradA} ${gradPosA}%, ${gradB} ${gradPosB}%)`;
+    // The image element holds only the uploaded image (or nothing). The color
+    // layer (gradient or solid) lives on #background-overlay below.
     if (bgImgEl) {
-      const bgZoom = +LS.get("bgZoom", 100) || 100;       // 100..300 (%)
-      const bgPosX = LS.get("bgPosX", 50);                // 0..100 (%)
-      const bgPosY = LS.get("bgPosY", 50);                // 0..100 (%)
+      bgImgEl.style.backgroundImage = bgImage ? `url('${bgImage}')` : "none";
+    }
+    // Background framing for the uploaded image: static images are pre-cropped to
+    // a square (defaults: center / cover). GIFs keep their original data and are
+    // framed via position + zoom so they can be repositioned without re-encoding.
+    if (bgImgEl && bgImage) {
+      const bgZoom = +LS.get("bgZoom", 100) || 100;
+      const bgPosX = LS.get("bgPosX", 50);
+      const bgPosY = LS.get("bgPosY", 50);
       if (bgZoom <= 100) {
         bgImgEl.style.backgroundSize = "cover";
       } else {
-        // Scale relative to "cover" on a 1:1 panel: zoom the cover-fitting axis.
-        // ar = imgW/imgH. Landscape (ar>1) is height-fit -> grow height; portrait
-        // is width-fit -> grow width. Stored when the GIF was framed.
         const ar = +LS.get("bgAspect", 1) || 1;
         bgImgEl.style.backgroundSize = ar >= 1 ? `auto ${bgZoom}%` : `${bgZoom}% auto`;
       }
       bgImgEl.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
     }
     const overlay = $("#background-overlay");
-    if (overlay) overlay.style.backgroundColor = hexToRgba(bgColor, bgOpacity);
-    if (bgImgEl) bgImgEl.style.filter = `blur(${bgBlur}px)`;
+    if (overlay) {
+      // The color layer sits above the image: a solid tint or a gradient wash,
+      // dimmed by the opacity slider. With no image it's the full background;
+      // with an image, lower opacity lets the photo show through.
+      overlay.style.opacity = (Math.max(0, Math.min(100, +bgOpacity)) / 100).toString();
+      if (gradOn) {
+        overlay.style.backgroundColor = "transparent";
+        overlay.style.backgroundImage = gradStr;
+      } else {
+        overlay.style.backgroundImage = "none";
+        overlay.style.backgroundColor = bgColor;
+      }
+    }
+    // blur applies only to the background image element
+    if (bgImgEl) bgImgEl.style.filter = +bgBlur > 0 ? `blur(${bgBlur}px)` : "";
+    const appWrapper = $("#app-wrapper");
+    if (appWrapper) appWrapper.style.filter = "";
 
     // clear button
     const clearBtn = $("#clearBgImage");
@@ -557,6 +677,11 @@ document.addEventListener("DOMContentLoaded", () => {
       appWrap.classList.remove("lowercase");
       appWrap.style.fontFamily = font;
       appWrap.style.fontWeight = fontWeight;
+      // text glow / neon effect
+      const glowOn = LS.get("textGlow", "false") === "true";
+      appWrap.classList.toggle("text-glow", glowOn);
+      const glowColor = LS.get("glowColor", "") || textColor;
+      appWrap.style.setProperty("--glow-color", glowColor);
     }
     // ---- Blend modes (text + ring mix with the background image) ----
     // mix-blend-mode only reaches the background if the element shares the
@@ -673,6 +798,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (ringDotEl) ringDotEl.style.display = (ringOn && dotMode) ? "block" : "none";
     // #ringProgress is the gradient arc in BOTH styles; just adjust the radius.
     if (ringProgEl) ringProgEl.setAttribute("r", dotMode ? RING_R_DOT : 48);
+    // ring line thickness (applies to track + progress arc)
+    const ringWidth = +LS.get("ringWidth", 1.4) || 1.4;
+    const ringTrackEl = $("#ringTrack");
+    if (ringTrackEl) ringTrackEl.setAttribute("stroke-width", ringWidth);
+    if (ringProgEl) ringProgEl.setAttribute("stroke-width", ringWidth);
     // refresh the arc immediately so toggling style/preview updates at once
     updateSecondProgress();
     const bar = $("#secondBar");
@@ -695,7 +825,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Per-block font / weight / color overrides. Empty = inherit the global
       // setting (so we clear the inline style to fall back to the body value).
-      const bf = LS.get(`font_${key}`, "");
+      let bf = LS.get(`font_${key}`, "");
+      if (bf === "__custom__") bf = LS.get(`customFont_${key}`, "") ? `'${LS.get(`customFont_${key}`)}', sans-serif` : "";
       el.style.fontFamily = bf || "";
       const bw = LS.get(`weight_${key}`, "");
       el.style.fontWeight = bw || "";
@@ -732,7 +863,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // custom text
     const ctEl = $("#custom-text");
     if (ctEl) {
-      const txt = LS.get("customText","");
+      const txt = LS.get("customText","Custom Text");
       const pos = LS.get("customTextPos","top");
       ctEl.textContent = txt;
       ctEl.className = txt ? `pos-${pos}` : "";
@@ -1052,6 +1183,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // Items can be reordered within a zone and moved between the visible and
   // hidden zones. Uses a placeholder to show the drop position, highlights the
   // active drop zone, and floats the dragged item under the finger.
+  // Place layout hub-items into the visible/hidden zones according to the
+  // saved order + hiddenBlocks. Safe to call repeatedly (e.g. after a preset).
+  function placeLayoutItems() {
+    const visible = $("#layoutReorder");
+    const hidden  = $("#layoutHidden");
+    if (!visible || !hidden) return;
+    const order = getLayoutOrder();
+    const hiddenSet = new Set(getHiddenBlocks());
+    order.forEach(key => {
+      const li = document.querySelector(`#tab-layout .cfg-hub-item[data-key="${key}"]`);
+      if (!li) return;
+      (hiddenSet.has(key) ? hidden : visible).appendChild(li);
+    });
+  }
+
   function setupLayoutZones() {
     const visible = $("#layoutReorder");
     const hidden  = $("#layoutHidden");
@@ -1063,13 +1209,7 @@ document.addEventListener("DOMContentLoaded", () => {
       Array.from(zone.children).filter(el => el.classList.contains("cfg-hub-item"));
 
     // 1) place items into their saved zone + order on load
-    const order = getLayoutOrder();
-    const hiddenSet = new Set(getHiddenBlocks());
-    order.forEach(key => {
-      const li = document.querySelector(`#tab-layout .cfg-hub-item[data-key="${key}"]`);
-      if (!li) return;
-      (hiddenSet.has(key) ? hidden : visible).appendChild(li);
-    });
+    placeLayoutItems();
 
     // 2) persist current arrangement of both zones
     const persist = () => {
@@ -1552,18 +1692,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const ringProg = $("#ringProgress");
 
     if (mode === "gradient") {
-      const preset = LS.get("ringPreset") || "bluePurple";
-      let a, b;
-      if (preset === "custom") {
-        a = LS.get("ringGradA") || "#3b82f6";
-        b = LS.get("ringGradB") || "#a855f7";
-      } else {
-        [a, b] = RING_PRESETS[preset] || RING_PRESETS.bluePurple;
+      const a = LS.get("ringGradA") || "#3b82f6";
+      const b = LS.get("ringGradB") || "#a855f7";
+      const pA = Math.max(0, Math.min(100, +LS.get("ringGradPosA", 0)));
+      const pB = Math.max(0, Math.min(100, +LS.get("ringGradPosB", 100)));
+      const angle = +LS.get("ringGradAngle", 135) || 135;
+      const rad = angle * Math.PI / 180;
+      const x1 = (0.5 - 0.5 * Math.sin(rad)) * 100;
+      const y1 = (0.5 + 0.5 * Math.cos(rad)) * 100;
+      const x2 = (0.5 + 0.5 * Math.sin(rad)) * 100;
+      const y2 = (0.5 - 0.5 * Math.cos(rad)) * 100;
+      const gradEl = $("#ringGrad");
+      if (gradEl) {
+        gradEl.setAttribute("x1", `${x1.toFixed(1)}%`);
+        gradEl.setAttribute("y1", `${y1.toFixed(1)}%`);
+        gradEl.setAttribute("x2", `${x2.toFixed(1)}%`);
+        gradEl.setAttribute("y2", `${y2.toFixed(1)}%`);
       }
       const stopA = $("#ringGradA");
       const stopB = $("#ringGradB");
-      if (stopA) stopA.setAttribute("stop-color", a);
-      if (stopB) stopB.setAttribute("stop-color", b);
+      if (stopA) { stopA.setAttribute("stop-color", a); stopA.setAttribute("offset", `${pA}%`); }
+      if (stopB) { stopB.setAttribute("stop-color", b); stopB.setAttribute("offset", `${pB}%`); }
       if (ringProg) ringProg.style.stroke = "url(#ringGrad)";
       ringColorState = { mode, a, b, solid: b };
     } else {
@@ -1752,6 +1901,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleColon() {
+    if (LS.get("colonBlink", "true") !== "true") return;
     const c = $("#colon");
     if (c) c.style.opacity = c.style.opacity === "0" ? "1" : "0";
   }
@@ -1891,21 +2041,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const kraken = data?.kraken;
     const ram = data?.ram;
 
-    // helper: write a value to a sensor cell, or "--" if unavailable
-    const put = (key, raw, suffix = "") => {
+    // helper: write a value to a sensor cell, or "--" if unavailable.
+    // `warnAt` (optional) turns the cell red when raw >= threshold.
+    const tempWarn = +LS.get("tempWarn", 80) || 80;
+    const warnEnabled = LS.get("tempWarnOn", "false") === "true";
+    const put = (key, raw, suffix = "", warnable = false) => {
       const el = $(`#val-${key}`);
       if (!el) return;
-      el.textContent = (raw === undefined || raw === null || Number.isNaN(raw))
-        ? "--"
-        : `${Math.round(raw)}${suffix}`;
+      const ok = !(raw === undefined || raw === null || Number.isNaN(raw));
+      el.textContent = ok ? `${Math.round(raw)}${suffix}` : "--";
+      if (warnable) {
+        const hot = warnEnabled && ok && raw >= tempWarn;
+        el.classList.toggle("temp-warn", hot);
+      }
     };
 
     // load is reported as a 0..1 fraction; convert to a 0..100 percentage
     const pct = (v) => (typeof v === "number" ? v * 100 : v);
 
-    put("cpu",      cpu?.temperature, "°");
-    put("gpu",      gpu?.temperature, "°");
-    put("liq",      kraken?.liquidTemperature, "°");
+    put("cpu",      cpu?.temperature, "°", true);
+    put("gpu",      gpu?.temperature, "°", true);
+    put("liq",      kraken?.liquidTemperature, "°", true);
     put("cpuLoad",  pct(cpu?.load), "%");
     put("gpuLoad",  pct(gpu?.load), "%");
     put("cpuFan",   cpu?.fanSpeed);
@@ -1965,6 +2121,7 @@ document.addEventListener("DOMContentLoaded", () => {
         applyLang();
         // refresh dynamic labels that aren't plain data-i18n text
         updateWeatherLastUpdatedUI();
+        renderPresetButtons();
       });
     }
 
@@ -2053,7 +2210,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---- Tab: 文字 ----
     bindSelect("dateFormat","dateFormat", () => updateClock());
-    bindSelect("fontSelector","fontFamily", () => { applyCustomizations(); recalcAndApplyTextScale(); });
+
+    // Font selector with a "custom (PC font)" option that reveals a text input.
+    const fontSel = $("#fontSelector");
+    const customFontRow = $("#customFontRow");
+    const customFontHint = $("#customFontHint");
+    const customFontInput = $("#customFontInput");
+    const PRESET_FONTS = Array.from(fontSel?.options || [])
+      .map(o => o.value).filter(v => v !== "__custom__");
+    const showCustomFont = (on) => {
+      if (customFontRow) customFontRow.style.display = on ? "flex" : "none";
+      if (customFontHint) customFontHint.style.display = on ? "block" : "none";
+    };
+    // initialize: if the saved fontFamily isn't one of the presets, it's custom
+    const savedFont = LS.get("fontFamily", PRESET_FONTS[0]);
+    const isCustomFont = savedFont && !PRESET_FONTS.includes(savedFont);
+    if (fontSel) fontSel.value = isCustomFont ? "__custom__" : savedFont;
+    if (customFontInput && isCustomFont) {
+      // strip the wrapping quotes for display (stored as: "Name", sans-serif)
+      customFontInput.value = savedFont.replace(/^["']|["'],?\s*sans-serif$|["']$/g, "").replace(/, sans-serif$/, "");
+    }
+    showCustomFont(isCustomFont);
+
+    fontSel?.addEventListener("change", e => {
+      if (e.target.value === "__custom__") {
+        showCustomFont(true);
+        // apply whatever is currently typed (if any)
+        const name = (customFontInput?.value || "").trim();
+        if (name) LS.set("fontFamily", `'${name}', sans-serif`);
+        customFontInput?.focus();
+      } else {
+        showCustomFont(false);
+        LS.set("fontFamily", e.target.value);
+      }
+      applyCustomizations(); recalcAndApplyTextScale(); sync();
+    });
+    customFontInput?.addEventListener("input", e => {
+      const name = e.target.value.trim();
+      // fall back to a generic family so partial typing still renders
+      LS.set("fontFamily", name ? `'${name}', sans-serif` : "sans-serif");
+      applyCustomizations(); recalcAndApplyTextScale(); sync();
+    });
+
     bindSegment("fontWeightSeg","fontWeight", () => { applyCustomizations(); recalcAndApplyTextScale(); }, "normal");
     bindColor("colorPicker","textColor","colorPickerVal");
     bindSelect("blendMode","blendMode", () => applyCustomizations());
@@ -2077,6 +2275,40 @@ document.addEventListener("DOMContentLoaded", () => {
       updateClock();
     });
     bindToggle("textShadowToggle","textShadow", () => { applyCustomizations(); clearTextScaleInline(); applyTextOnlyScale(textScaleState.pct); });
+
+    // text glow / neon
+    const glowRow = $("#glowColorRow");
+    const refreshGlowRow = () => { if (glowRow) glowRow.style.display = LS.get("textGlow","false")==="true" ? "flex" : "none"; };
+    bindToggle("textGlowToggle","textGlow", () => { refreshGlowRow(); applyCustomizations(); });
+    // glow color: a checkbox enables a custom glow color (else uses text color)
+    const glowUse = $("#glowColorUse");
+    const glowPick = $("#glowColor");
+    if (glowUse) {
+      glowUse.checked = LS.get("glowColorUse")==="true";
+      glowUse.addEventListener("change", e => {
+        LS.set("glowColorUse", e.target.checked ? "true":"false");
+        // when off, clear the custom color so it falls back to text color
+        if (!e.target.checked) LS.set("glowColor","");
+        else if (glowPick) LS.set("glowColor", glowPick.value);
+        applyCustomizations(); sync();
+      });
+    }
+    if (glowPick) {
+      glowPick.value = LS.get("glowColor") || glowPick.value;
+      glowPick.addEventListener("input", e => {
+        LS.set("glowColor", e.target.value);
+        if (glowUse) { glowUse.checked = true; LS.set("glowColorUse","true"); }
+        applyCustomizations(); sync();
+      });
+    }
+    refreshGlowRow();
+
+    // temperature warning
+    const tempRow = $("#tempWarnRow");
+    const refreshTempRow = () => { if (tempRow) tempRow.style.display = LS.get("tempWarnOn","false")==="true" ? "flex" : "none"; };
+    bindToggle("tempWarnToggle","tempWarnOn", () => { refreshTempRow(); });
+    bindSlider("tempWarn","tempWarn","tempWarnVal", v=>`${v}°`, () => {});
+    refreshTempRow();
     bindToggle("dotShapeToggle","dotShape",
       checked => {
         applyCustomizations({ dotShape: checked ? "round" : "square" });
@@ -2084,6 +2316,10 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       { values: ["square","round"] }
     );
+    bindToggle("colonBlink","colonBlink", checked => {
+      const c = $("#colon");
+      if (c && !checked) c.style.opacity = "1"; // ensure colon visible when blink off
+    }, { defaultOn: true });
     // second ring on/off (independent full-overlay ring, in the 全体 tab)
     function refreshRingSettings() {
       const on = LS.get("secondRing") === "true";
@@ -2101,6 +2337,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateSecondProgress();
       refreshRingMotionRow();
     });
+    bindSlider("ringWidth","ringWidth","ringWidthVal", v=>`${v}`, () => { applyCustomizations(); updateSecondProgress(); });
     // ring motion + grow (independent of the bar)
     function refreshRingMotionRow() {
       const grow = LS.get("ringGrow") !== "false";
@@ -2124,24 +2361,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // ring color mode (sync / solid / gradient) and its dependent rows
     function refreshRingColorRows() {
       const mode = LS.get("ringColorMode") || "sync";
-      const preset = LS.get("ringPreset") || "bluePurple";
-      const show = (id, on) => { const r = $(`#${id}`); if (r) r.style.display = on ? "flex" : "none"; };
-      show("ringSolidRow",  mode === "solid");
-      show("ringPresetRow", mode === "gradient");
-      show("ringGradARow",  mode === "gradient" && preset === "custom");
-      show("ringGradBRow",  mode === "gradient" && preset === "custom");
+      const show = (id, on, disp = "flex") => { const r = $(`#${id}`); if (r) r.style.display = on ? disp : "none"; };
+      show("ringSolidSection", mode === "solid", "block");
+      show("ringGradRows", mode === "gradient", "block");
+      const seg = $("#ringColorModeSeg");
+      if (seg) seg.querySelectorAll(".cfg-seg-btn").forEach(b => b.classList.toggle("active", b.dataset.val === mode));
     }
-    bindSelect("ringColorMode","ringColorMode", () => {
-      refreshRingColorRows();
-      applyCustomizations();
-    });
-    bindSelect("ringPreset","ringPreset", () => {
-      refreshRingColorRows();
-      applyCustomizations();
-    });
+    const ringModeSeg = $("#ringColorModeSeg");
+    if (ringModeSeg) {
+      ringModeSeg.querySelectorAll(".cfg-seg-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          LS.set("ringColorMode", btn.dataset.val);
+          refreshRingColorRows();
+          applyCustomizations();
+        });
+      });
+    }
     bindColor("ringColorPicker","ringColor","ringColorVal");
-    bindColor("ringGradAPicker","ringGradA","ringGradAVal");
-    bindColor("ringGradBPicker","ringGradB","ringGradBVal");
     bindSelect("ringBlend","ringBlend", () => applyCustomizations());
     refreshRingColorRows();
     function refreshSecondMotionRow() {
@@ -2185,7 +2421,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ADV_BLOCKS.forEach(({ cap, key, size }) => {
       // per-block font / weight / color / blend overrides
-      bindSelect(`font_${key}`, `font_${key}`, () => applyCustomizations());
+      const fontSel = $(`#font_${key}`);
+      if (fontSel) {
+        // inject __custom__ option if not already present
+        if (!Array.from(fontSel.options).some(o => o.value === "__custom__")) {
+          const opt = document.createElement("option");
+          opt.value = "__custom__";
+          opt.setAttribute("data-i18n", "opt.customFont");
+          opt.textContent = t("opt.customFont");
+          fontSel.appendChild(opt);
+        }
+        // inject inline custom font input row after the font select row (once)
+        const fontRow = fontSel.closest(".cfg-row");
+        let customRow = fontRow?.nextElementSibling;
+        if (customRow && !customRow.classList.contains(`cfg-custom-font-row-${key}`)) customRow = null;
+        if (!customRow && fontRow) {
+          customRow = document.createElement("div");
+          customRow.className = `cfg-row cfg-custom-font-row-${key}`;
+          customRow.style.display = "none";
+          customRow.innerHTML = `<label class="cfg-label" data-i18n="label.customFont">${t("label.customFont")}</label>`
+            + `<input type="text" id="customFont_${key}" class="cfg-input" placeholder="${t("ph.customFont")}" maxlength="60" />`;
+          fontRow.insertAdjacentElement("afterend", customRow);
+        }
+        const customInput = $(`#customFont_${key}`);
+        const showCustomRow = (on) => { if (customRow) customRow.style.display = on ? "flex" : "none"; };
+
+        // initialize
+        const saved = LS.get(`font_${key}`, "");
+        const isCustom = saved === "__custom__";
+        fontSel.value = saved || "";
+        if (customInput) customInput.value = LS.get(`customFont_${key}`, "");
+        showCustomRow(isCustom);
+
+        fontSel.addEventListener("change", e => {
+          LS.set(`font_${key}`, e.target.value);
+          const custom = e.target.value === "__custom__";
+          showCustomRow(custom);
+          if (custom) customInput?.focus();
+          applyCustomizations(); sync();
+        });
+        customInput?.addEventListener("input", e => {
+          LS.set(`customFont_${key}`, e.target.value.trim());
+          applyCustomizations(); sync();
+        });
+      }
       bindSegment(`weightSeg_${key}`, `weight_${key}`, () => applyCustomizations(), "");
       bindSelect(`blend_${key}`, `blend_${key}`, () => applyCustomizations());
       // color override: a checkbox enables the per-block color picker
@@ -2234,6 +2513,282 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---- Tab: 背景 ----
     bindColor("bgColorPicker","bgColor","bgColorPickerVal");
+    // background gradient
+    const gradRows = $("#bgGradRows");
+    // background type: solid vs gradient (stored as bgGradOn for compatibility)
+    const solidRow = $("#bgSolidSection");
+    const bgTypeSeg = $("#bgTypeSeg");
+    const refreshBgType = () => {
+      const isGrad = LS.get("bgGradOn","false") === "true";
+      if (gradRows) gradRows.style.display = isGrad ? "block" : "none";
+      if (solidRow) solidRow.style.display = isGrad ? "none" : "block";
+      if (bgTypeSeg) bgTypeSeg.querySelectorAll(".cfg-seg-btn").forEach(b =>
+        b.classList.toggle("active", b.dataset.val === (isGrad ? "gradient" : "solid")));
+    };
+    const refreshGradRows = refreshBgType; // alias used elsewhere
+    if (bgTypeSeg) {
+      bgTypeSeg.querySelectorAll(".cfg-seg-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          LS.set("bgGradOn", btn.dataset.val === "gradient" ? "true" : "false");
+          refreshBgType();
+          applyCustomizations();
+          sync();
+        });
+      });
+    }
+
+    // gradient editor: a preview bar with two handles that open hidden pickers
+    const gradBar = $("#bgGradBar");
+    const gradHandleA = $("#bgGradHandleA");
+    const gradHandleB = $("#bgGradHandleB");
+    const gradPickA = $("#bgGradAPicker");
+    const gradPickB = $("#bgGradBPicker");
+    // Convert stored 0-100 position to a CSS left value that keeps the handle
+    // center within the bar (inset by handle radius = 11px on each side).
+    const gradLeft = pct => `calc(11px + (100% - 22px) * ${pct} / 100)`;
+    const refreshGradBar = () => {
+      const a = LS.get("bgGradA", "#3b82f6");
+      const b = LS.get("bgGradB", "#a855f7");
+      const pA = Math.max(0, Math.min(100, +LS.get("bgGradPosA", 0)));
+      const pB = Math.max(0, Math.min(100, +LS.get("bgGradPosB", 100)));
+      // preview bar always shown left-to-right (90deg) regardless of angle
+      if (gradBar) gradBar.style.background = `linear-gradient(90deg, ${a} ${pA}%, ${b} ${pB}%)`;
+      if (gradHandleA) { gradHandleA.style.backgroundColor = a; gradHandleA.style.left = gradLeft(pA); }
+      if (gradHandleB) { gradHandleB.style.backgroundColor = b; gradHandleB.style.left = gradLeft(pB); }
+      if (gradPickA) gradPickA.value = a;
+      if (gradPickB) gradPickB.value = b;
+    };
+    // initialize picker values from storage
+    if (gradPickA) gradPickA.value = LS.get("bgGradA", "#3b82f6");
+    if (gradPickB) gradPickB.value = LS.get("bgGradB", "#a855f7");
+
+    // Drag a handle to move its color stop; a click without dragging opens the
+    // color picker. We track movement to tell a tap from a drag.
+    function setupGradHandle(handle, picker, posKey, barEl = gradBar, refreshFn = refreshGradBar) {
+      if (!handle || !barEl) return;
+      let dragging = false, moved = false, startX = 0;
+      const barRect = () => barEl.getBoundingClientRect();
+      const down = (e) => {
+        dragging = true; moved = false;
+        startX = (e.touches ? e.touches[0] : e).clientX;
+        if (e.cancelable) e.preventDefault();
+      };
+      const move = (e) => {
+        if (!dragging) return;
+        const x = (e.touches ? e.touches[0] : e).clientX;
+        if (Math.abs(x - startX) > 3) moved = true;
+        const r = barRect();
+        const inset = 11; // handle radius, matches gradLeft()
+        let pct = ((x - r.left - inset) / (r.width - inset * 2)) * 100;
+        pct = Math.max(0, Math.min(100, Math.round(pct)));
+        LS.set(posKey, String(pct));
+        refreshFn();
+        applyCustomizations();
+      };
+      const up = () => {
+        if (!dragging) return;
+        dragging = false;
+        if (!moved) picker?.click();  // a tap (no drag) opens the picker
+        else sync();
+      };
+      handle.addEventListener("mousedown", down);
+      window.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", up);
+      handle.addEventListener("touchstart", down, { passive: false });
+      window.addEventListener("touchmove", move, { passive: false });
+      window.addEventListener("touchend", up);
+    }
+    setupGradHandle(gradHandleA, gradPickA, "bgGradPosA");
+    setupGradHandle(gradHandleB, gradPickB, "bgGradPosB");
+    // picker change -> save + refresh bar + apply
+    gradPickA?.addEventListener("input", e => {
+      LS.set("bgGradA", e.target.value); refreshGradBar(); applyCustomizations(); sync();
+    });
+    gradPickB?.addEventListener("input", e => {
+      LS.set("bgGradB", e.target.value); refreshGradBar(); applyCustomizations(); sync();
+    });
+    bindSlider("bgGradAngle","bgGradAngle","bgGradAngleVal", v=>`${v}°`, () => { refreshGradBar(); applyCustomizations(); });
+    refreshGradRows();
+    refreshGradBar();
+
+    // ring gradient bar editor
+    const ringGradBar = $("#ringGradBar");
+    const ringGradHandleA = $("#ringGradHandleA");
+    const ringGradHandleB = $("#ringGradHandleB");
+    const ringGradPickA = $("#ringGradAPicker");
+    const ringGradPickB = $("#ringGradBPicker");
+    const refreshRingGradBar = () => {
+      const a = LS.get("ringGradA", "#3b82f6");
+      const b = LS.get("ringGradB", "#a855f7");
+      const pA = Math.max(0, Math.min(100, +LS.get("ringGradPosA", 0)));
+      const pB = Math.max(0, Math.min(100, +LS.get("ringGradPosB", 100)));
+      if (ringGradBar) ringGradBar.style.background = `linear-gradient(90deg, ${a} ${pA}%, ${b} ${pB}%)`;
+      if (ringGradHandleA) { ringGradHandleA.style.backgroundColor = a; ringGradHandleA.style.left = gradLeft(pA); }
+      if (ringGradHandleB) { ringGradHandleB.style.backgroundColor = b; ringGradHandleB.style.left = gradLeft(pB); }
+      if (ringGradPickA) ringGradPickA.value = a;
+      if (ringGradPickB) ringGradPickB.value = b;
+    };
+    if (ringGradPickA) ringGradPickA.value = LS.get("ringGradA", "#3b82f6");
+    if (ringGradPickB) ringGradPickB.value = LS.get("ringGradB", "#a855f7");
+    setupGradHandle(ringGradHandleA, ringGradPickA, "ringGradPosA", ringGradBar, refreshRingGradBar);
+    setupGradHandle(ringGradHandleB, ringGradPickB, "ringGradPosB", ringGradBar, refreshRingGradBar);
+    ringGradPickA?.addEventListener("input", e => {
+      LS.set("ringGradA", e.target.value); refreshRingGradBar(); applyCustomizations(); sync();
+    });
+    ringGradPickB?.addEventListener("input", e => {
+      LS.set("ringGradB", e.target.value); refreshRingGradBar(); applyCustomizations(); sync();
+    });
+    bindSlider("ringGradAngle","ringGradAngle","ringGradAngleVal", v=>`${v}°`, () => { refreshRingGradBar(); applyCustomizations(); });
+    refreshRingGradBar();
+
+    // --- Ring color / gradient swatches ---
+    const RING_SOLID_SWATCHES = [
+      "#ffffff","#cccccc","#ff4455","#ff9900","#ffee00",
+      "#44ff88","#00eebb","#4499ff","#aa55ff","#ff44cc",
+    ];
+    const RING_GRAD_SWATCHES = [
+      { a:"#3b82f6", b:"#a855f7", angle:135, posA:0, posB:100 },
+      { a:"#22d3ee", b:"#3b82f6", angle:135, posA:0, posB:100 },
+      { a:"#ec4899", b:"#a855f7", angle:135, posA:0, posB:100 },
+      { a:"#22c55e", b:"#22d3ee", angle:135, posA:0, posB:100 },
+      { a:"#f97316", b:"#ef4444", angle:135, posA:0, posB:100 },
+      { a:"#fbbf24", b:"#ec4899", angle:160, posA:0, posB:100 },
+      { a:"#14b8a6", b:"#8b5cf6", angle:135, posA:0, posB:100 },
+      { a:"#ffffff", b:"#3b82f6", angle:135, posA:0, posB:100 },
+    ];
+
+    function buildSolidSwatches() {
+      const wrap = $("#ringSolidSwatches");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      const current = LS.get("ringColor","#ffffff").toLowerCase();
+      RING_SOLID_SWATCHES.forEach(color => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cfg-swatch" + (color === current ? " active" : "");
+        btn.style.background = color;
+        btn.title = color;
+        btn.addEventListener("click", () => {
+          LS.set("ringColor", color);
+          const picker = $("#ringColorPicker"), valEl = $("#ringColorVal");
+          if (picker) picker.value = color;
+          if (valEl) valEl.textContent = color;
+          wrap.querySelectorAll(".cfg-swatch").forEach(s => s.classList.toggle("active", s.title === color));
+          applyCustomizations(); sync();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function buildGradSwatches() {
+      const wrap = $("#ringGradSwatches");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      const curA = LS.get("ringGradA","#3b82f6").toLowerCase();
+      const curB = LS.get("ringGradB","#a855f7").toLowerCase();
+      RING_GRAD_SWATCHES.forEach((p, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cfg-swatch cfg-swatch--grad"
+          + (p.a === curA && p.b === curB ? " active" : "");
+        btn.style.background = `linear-gradient(90deg, ${p.a}, ${p.b})`;
+        btn.title = `${p.a} → ${p.b}`;
+        btn.dataset.idx = i;
+        btn.addEventListener("click", () => {
+          LS.set("ringGradA", p.a);
+          LS.set("ringGradB", p.b);
+          LS.set("ringGradAngle", String(p.angle));
+          LS.set("ringGradPosA", String(p.posA));
+          LS.set("ringGradPosB", String(p.posB));
+          refreshRingGradBar();
+          // sync angle slider display
+          const angleEl = $("#ringGradAngle"), angleVal = $("#ringGradAngleVal");
+          if (angleEl) angleEl.value = p.angle;
+          if (angleVal) angleVal.textContent = `${p.angle}°`;
+          wrap.querySelectorAll(".cfg-swatch").forEach(s => s.classList.toggle("active", +s.dataset.idx === i));
+          applyCustomizations(); sync();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    buildSolidSwatches();
+    buildGradSwatches();
+
+    // --- Background solid / gradient swatches ---
+    const BG_SOLID_SWATCHES = [
+      "#000000","#111111","#1a1a2e","#0a0020","#05080f",
+      "#012a3a","#001100","#3a0d2a","#2a0a18","#020a02",
+    ];
+    const BG_GRAD_SWATCHES = [
+      { a:"#3b82f6", b:"#a855f7", angle:135, posA:0, posB:100 },
+      { a:"#22d3ee", b:"#3b82f6", angle:135, posA:0, posB:100 },
+      { a:"#ec4899", b:"#a855f7", angle:135, posA:0, posB:100 },
+      { a:"#ff6b6b", b:"#7b2ff7", angle:160, posA:0, posB:100 },
+      { a:"#ff9ec4", b:"#6a2c5a", angle:135, posA:0, posB:100 },
+      { a:"#22c55e", b:"#22d3ee", angle:135, posA:0, posB:100 },
+      { a:"#f97316", b:"#ef4444", angle:135, posA:0, posB:100 },
+      { a:"#1a1a2e", b:"#16213e", angle:180, posA:0, posB:100 },
+    ];
+
+    function buildBgSolidSwatches() {
+      const wrap = $("#bgSolidSwatches");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      const current = LS.get("bgColor","#000000").toLowerCase();
+      BG_SOLID_SWATCHES.forEach(color => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cfg-swatch" + (color === current ? " active" : "");
+        btn.style.background = color;
+        btn.style.border = "1px solid rgba(255,255,255,0.15)";
+        btn.title = color;
+        btn.addEventListener("click", () => {
+          LS.set("bgColor", color);
+          const picker = $("#bgColorPicker"), valEl = $("#bgColorPickerVal");
+          if (picker) picker.value = color;
+          if (valEl) valEl.textContent = color;
+          wrap.querySelectorAll(".cfg-swatch").forEach(s => s.classList.toggle("active", s.title === color));
+          applyCustomizations(); sync();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function buildBgGradSwatches() {
+      const wrap = $("#bgGradSwatches");
+      if (!wrap) return;
+      wrap.innerHTML = "";
+      const curA = LS.get("bgGradA","#3b82f6").toLowerCase();
+      const curB = LS.get("bgGradB","#a855f7").toLowerCase();
+      BG_GRAD_SWATCHES.forEach((p, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cfg-swatch cfg-swatch--grad"
+          + (p.a === curA && p.b === curB ? " active" : "");
+        btn.style.background = `linear-gradient(90deg, ${p.a}, ${p.b})`;
+        btn.title = `${p.a} → ${p.b}`;
+        btn.dataset.idx = i;
+        btn.addEventListener("click", () => {
+          LS.set("bgGradA", p.a);
+          LS.set("bgGradB", p.b);
+          LS.set("bgGradAngle", String(p.angle));
+          LS.set("bgGradPosA", String(p.posA));
+          LS.set("bgGradPosB", String(p.posB));
+          refreshGradBar();
+          const angleEl = $("#bgGradAngle"), angleVal = $("#bgGradAngleVal");
+          if (angleEl) angleEl.value = p.angle;
+          if (angleVal) angleVal.textContent = `${p.angle}°`;
+          wrap.querySelectorAll(".cfg-swatch").forEach(s => s.classList.toggle("active", +s.dataset.idx === i));
+          applyCustomizations(); sync();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    buildBgSolidSwatches();
+    buildBgGradSwatches();
+
     bindSlider("bgOpacity","bgOpacity","bgOpacityVal", v=>`${v}%`, () => applyCustomizations());
     bindSlider("bgBlur","bgBlur","bgBlurVal", v=>`${v}px`, () => applyCustomizations());
 
@@ -2428,6 +2983,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // set a data URL as the current background (stored in IndexedDB), reveal
     // it via opacity, update the in-memory cache, repaint, and notify Kraken.
     async function applyBgImage(dataUrl) {
+      // snapshot current image onto the prev layer for crossfade
+      const bgEl  = $("#background-image");
+      const prevEl = $("#background-image-prev");
+      if (bgEl && prevEl) {
+        prevEl.style.backgroundImage    = bgEl.style.backgroundImage;
+        prevEl.style.backgroundSize     = bgEl.style.backgroundSize;
+        prevEl.style.backgroundPosition = bgEl.style.backgroundPosition;
+        bgEl.style.transition = "none";
+        bgEl.style.opacity = "0";
+      }
+
       await idbSet("current", dataUrl);
       bgImageCache = dataUrl || "";
       if (LS.get("bgOpacity","100") === "100") {
@@ -2438,6 +3004,14 @@ document.addEventListener("DOMContentLoaded", () => {
       bumpBgRev();   // tell the Kraken view to re-read the image
       sync();
       await renderBgHistory();
+
+      // fade in the new background
+      if (bgEl) {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          bgEl.style.transition = "";
+          bgEl.style.opacity = "1";
+        }));
+      }
     }
 
     // render the history thumbnails
@@ -2567,7 +3141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Custom text
     const customTextInput = $("#customTextInput");
     if (customTextInput) {
-      customTextInput.value = LS.get("customText","");
+      customTextInput.value = LS.get("customText","Custom Text");
       customTextInput.addEventListener("input", e => {
         LS.set("customText", e.target.value);
         applyCustomizations();
@@ -2675,20 +3249,181 @@ document.addEventListener("DOMContentLoaded", () => {
           if (data.settings[k] !== undefined) LS.set(k, data.settings[k]);
         });
         LS.set("uiLang", keepLang);
-        // restore background image (or clear it)
+        // restore background image and add to history
         if (data.backgroundImage) {
           await idbSet("current", data.backgroundImage);
+          bgImageCache = data.backgroundImage;
+          await pushBgHistory(data.backgroundImage);
         } else {
           await idbDel("current");
+          bgImageCache = "";
         }
-        LS.set("__refresh__", Date.now());
-        location.reload();
+        // sync UI controls and re-apply without reloading
+        syncUIFromLS();
+        placeLayoutItems();
+        applyLayoutOrder();
+        applyBlockVisibility();
+        applyCustomizations();
+        applyWeather();
+        recalcAndApplyTextScale();
+        await renderBgHistory();
+        sync();
+        showToast(t("toast.imported"));
       } catch (e) {
         showToast(t("toast.importBad"));
       }
     }
 
     // ---- Apply a built-in preset ----
+    // Sync every bound UI element to the current localStorage values.
+    // Called after applyPreset so the controls reflect the new settings
+    // without a page reload (and without losing the current tab state).
+    function syncUIFromLS() {
+      // select elements (id === storage key, except fontSelector handled below)
+      $$("select[id]").forEach(el => {
+        if (el.id === "fontSelector") return;
+        const key = el.id;
+        const v = localStorage.getItem(key);
+        if (v !== null) el.value = v;
+      });
+      // font selector: maps fontFamily, with a custom-font fallback
+      const fSel = $("#fontSelector");
+      if (fSel) {
+        const presets = Array.from(fSel.options).map(o => o.value).filter(v => v !== "__custom__");
+        const fv = LS.get("fontFamily", presets[0]);
+        const custom = fv && !presets.includes(fv);
+        fSel.value = custom ? "__custom__" : fv;
+        const cRow = $("#customFontRow"), cHint = $("#customFontHint"), cIn = $("#customFontInput");
+        if (cRow) cRow.style.display = custom ? "flex" : "none";
+        if (cHint) cHint.style.display = custom ? "block" : "none";
+        if (cIn && custom) cIn.value = fv.replace(/^['"]/, "").replace(/['"],?\s*sans-serif$/, "").replace(/['"]$/, "");
+      }
+      // per-block custom font selectors: restore __custom__ + show/hide input row
+      ["date","clock","second","weather","sensors","custom"].forEach(key => {
+        const sel = $(`#font_${key}`);
+        if (!sel) return;
+        const saved = LS.get(`font_${key}`, "");
+        sel.value = saved || "";
+        const customRow = document.querySelector(`.cfg-custom-font-row-${key}`);
+        const customInput = $(`#customFont_${key}`);
+        const isCustom = saved === "__custom__";
+        if (customRow) customRow.style.display = isCustom ? "flex" : "none";
+        if (customInput) customInput.value = LS.get(`customFont_${key}`, "");
+      });
+      // slider elements (input[type=range])
+      $$("input[type=range][id]").forEach(el => {
+        const key = el.id;
+        const v = localStorage.getItem(key);
+        if (v !== null) {
+          el.value = v;
+          // update sibling value display (element with id = key + "Val")
+          const valEl = $(`#${key}Val`);
+          if (valEl) {
+            // re-use the existing text format: append the existing unit suffix
+            const unit = valEl.textContent.replace(/[\d.]+/, "").trim();
+            valEl.textContent = v + unit;
+          }
+        }
+      });
+      // color pickers
+      // color pickers: map id -> storage key (they often differ)
+      const colorKeyById = {
+        colorPicker:"textColor", bgColorPicker:"bgColor",
+        ringColorPicker:"ringColor", ringGradAPicker:"ringGradA", ringGradBPicker:"ringGradB",
+        bgGradAPicker:"bgGradA", bgGradBPicker:"bgGradB",
+        glowColor:"glowColor", secondColorPicker:"secondColor",
+      };
+      $$("input[type=color][id]").forEach(el => {
+        const key = colorKeyById[el.id] || el.id;
+        const v = localStorage.getItem(key);
+        if (v) el.value = v;
+      });
+      // checkboxes / toggles. Some toggles have an id that differs from their
+      // storage key (e.g. #textGlowToggle -> "textGlow"), so map them explicitly.
+      const toggleKeyById = {
+        toggle12Hour:"is12Hour", toggleSeconds:"showSeconds",
+        textShadowToggle:"textShadow", textGlowToggle:"textGlow",
+        tempWarnToggle:"tempWarnOn", secondRingToggle:"secondRing",
+        ringGrow:"ringGrow", secondGrow:"secondGrow",
+        secondColorSync:"secondColorSync",
+        glowColorUse:"glowColorUse",
+      };
+      $$("input[type=checkbox][id]").forEach(el => {
+        // dotShapeToggle stores a string value, not a boolean — skip here
+        if (el.id === "dotShapeToggle") return;
+        const key = toggleKeyById[el.id] || el.id;
+        const v = localStorage.getItem(key);
+        if (v !== null) el.checked = (v === "true" || v === "1");
+      });
+      // dot shape toggle (round vs square)
+      const dotToggle = $("#dotShapeToggle");
+      if (dotToggle) dotToggle.checked = LS.get("dotShape","square") === "round";
+      // segmented button groups
+      $$(".cfg-segment[id]").forEach(group => {
+        const key = group.id.replace(/Seg$/, "").replace(/^weightSeg_/, "weight_");
+        const realKey = group.id.includes("Seg_")
+          ? group.id.replace("Seg_", "_").replace(/^weight/, "weight")
+          : key;
+        const v = localStorage.getItem(realKey) || localStorage.getItem(group.id);
+        if (v !== null) {
+          group.querySelectorAll(".cfg-seg-btn").forEach(b =>
+            b.classList.toggle("active", b.dataset.val === v));
+        }
+      });
+      // color picker val displays that use a separate span
+      [["colorPicker","colorPickerVal","textColor"],
+       ["bgColorPicker","bgColorPickerVal","bgColor"],
+       ["glowColor","glowColorVal","glowColor"]].forEach(([pid, vid, key]) => {
+        const v = localStorage.getItem(key);
+        const valEl = $(`#${vid}`);
+        if (v && valEl) valEl.textContent = v;
+      });
+      // conditional rows whose visibility depends on a toggle
+      const showRow = (id, on, mode = "flex") => {
+        const el = $(`#${id}`);
+        if (el) el.style.display = on ? mode : "none";
+      };
+      const bgIsGrad = LS.get("bgGradOn","false")==="true";
+      showRow("bgGradRows", bgIsGrad, "block");
+      showRow("bgSolidSection", !bgIsGrad, "block");
+      const bgTypeSegEl = $("#bgTypeSeg");
+      if (bgTypeSegEl) bgTypeSegEl.querySelectorAll(".cfg-seg-btn").forEach(b =>
+        b.classList.toggle("active", b.dataset.val === (bgIsGrad ? "gradient" : "solid")));
+      showRow("glowColorRow", LS.get("textGlow","false")==="true");
+      showRow("tempWarnRow", LS.get("tempWarnOn","false")==="true");
+      showRow("overlayIntensityRow", (LS.get("bgOverlay","none")||"none") !== "none");
+      // refresh the gradient preview bar + handles
+      const gBar = $("#bgGradBar");
+      const gA = LS.get("bgGradA","#3b82f6"), gB = LS.get("bgGradB","#a855f7");
+      const gpA = Math.max(0, Math.min(100, +LS.get("bgGradPosA", 0)));
+      const gpB = Math.max(0, Math.min(100, +LS.get("bgGradPosB", 100)));
+      const gLeft = pct => `calc(11px + (100% - 22px) * ${pct} / 100)`;
+      if (gBar) gBar.style.background = `linear-gradient(90deg, ${gA} ${gpA}%, ${gB} ${gpB}%)`;
+      const hA = $("#bgGradHandleA"), hB = $("#bgGradHandleB");
+      if (hA) { hA.style.backgroundColor = gA; hA.style.left = gLeft(gpA); }
+      if (hB) { hB.style.backgroundColor = gB; hB.style.left = gLeft(gpB); }
+      // ring gradient bar
+      const rBar = $("#ringGradBar");
+      if (rBar) {
+        const rA = LS.get("ringGradA","#3b82f6"), rB = LS.get("ringGradB","#a855f7");
+        const rpA = Math.max(0, Math.min(100, +LS.get("ringGradPosA", 0)));
+        const rpB = Math.max(0, Math.min(100, +LS.get("ringGradPosB", 100)));
+        rBar.style.background = `linear-gradient(90deg, ${rA} ${rpA}%, ${rB} ${rpB}%)`;
+        const rhA = $("#ringGradHandleA"), rhB = $("#ringGradHandleB");
+        if (rhA) { rhA.style.backgroundColor = rA; rhA.style.left = gLeft(rpA); }
+        if (rhB) { rhB.style.backgroundColor = rB; rhB.style.left = gLeft(rpB); }
+      }
+      // ring color mode rows
+      const ringMode = LS.get("ringColorMode","sync");
+      showRow("ringSolidSection", ringMode === "solid", "block");
+      showRow("ringGradRows", ringMode === "gradient", "block");
+      // rebuild swatches to reflect current active state
+      if (typeof buildSolidSwatches === "function") buildSolidSwatches();
+      if (typeof buildGradSwatches === "function") buildGradSwatches();
+      if (typeof buildBgSolidSwatches === "function") buildBgSolidSwatches();
+      if (typeof buildBgGradSwatches === "function") buildBgGradSwatches();
+    }
+
     async function applyPreset(name) {
       const preset = PRESETS[name];
       if (!preset) return;
@@ -2698,8 +3433,18 @@ document.addEventListener("DOMContentLoaded", () => {
       // presets don't carry a background image; clear any existing one
       await idbDel("current");
       bgImageCache = "";
-      LS.set("__refresh__", Date.now());
-      location.reload();
+      // sync UI controls to the new values (no page reload)
+      syncUIFromLS();
+      // move layout blocks into the correct visible/hidden zones in the UI
+      placeLayoutItems();
+      // re-apply clock, layout, weather
+      applyLayoutOrder();
+      applyBlockVisibility();
+      applyCustomizations();
+      applyWeather();
+      recalcAndApplyTextScale();
+      await renderBgHistory();
+      sync();
     }
 
     $("#exportBtn")?.addEventListener("click", exportSettings);
@@ -2709,13 +3454,36 @@ document.addEventListener("DOMContentLoaded", () => {
       if (f) importSettings(f);
       e.target.value = "";
     });
-    // preset buttons (data-preset attribute)
-    $$("[data-preset]").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const name = btn.getAttribute("data-preset");
-        if (await confirmDialog(t("confirm.preset"))) applyPreset(name);
+    // preset buttons: built dynamically so each shows its theme colors/font
+    function renderPresetButtons() {
+      const presetGrid = $("#presetGrid");
+      if (!presetGrid) return;
+      presetGrid.innerHTML = "";
+      const lang = getLang();
+      Object.entries(PRESETS).forEach(([name, preset]) => {
+        const sw = preset.swatch || {};
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cfg-btn cfg-preset-btn";
+        btn.setAttribute("data-preset", name);
+        btn.style.background = sw.bg || "";
+        btn.style.color = sw.fg || "";
+        btn.style.borderColor = sw.accent || "";
+        btn.style.fontFamily = sw.font || "";
+        const dot = document.createElement("span");
+        dot.className = "cfg-preset-dot";
+        dot.style.background = sw.accent || sw.fg || "#fff";
+        const label = document.createElement("span");
+        label.textContent = preset.label?.en || name;
+        btn.appendChild(dot);
+        btn.appendChild(label);
+        btn.addEventListener("click", async () => {
+          if (await confirmDialog(t("confirm.preset"))) applyPreset(name);
+        });
+        presetGrid.appendChild(btn);
       });
-    });
+    }
+    renderPresetButtons();
   }
 
   // ---- Kraken mode ----
