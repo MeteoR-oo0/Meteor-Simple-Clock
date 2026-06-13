@@ -27,6 +27,7 @@
     <div id="background-image-prev"></div>
     <div id="background-image"></div>
     <div id="background-overlay"></div>
+    <div id="background-overlay-fade"></div>
     <svg id="second-ring" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -104,6 +105,37 @@
           <div class="temp" id="val-memPct">--</div>
           <div class="label">MEM%</div>
         </div>
+      </div>
+      <!-- Sensor history sparklines (3 independent graphs) -->
+      <div class="graph-block" data-block="graph">
+        <div class="graph-head">
+          <span class="graph-label">CPU</span>
+          <span class="graph-value">--</span>
+        </div>
+        <svg class="graph-svg" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+          <polygon class="graph-area" points="" />
+          <polyline class="graph-line" points="" vector-effect="non-scaling-stroke" />
+        </svg>
+      </div>
+      <div class="graph-block" data-block="graph2">
+        <div class="graph-head">
+          <span class="graph-label">GPU</span>
+          <span class="graph-value">--</span>
+        </div>
+        <svg class="graph-svg" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+          <polygon class="graph-area" points="" />
+          <polyline class="graph-line" points="" vector-effect="non-scaling-stroke" />
+        </svg>
+      </div>
+      <div class="graph-block" data-block="graph3">
+        <div class="graph-head">
+          <span class="graph-label">LIQ</span>
+          <span class="graph-value">--</span>
+        </div>
+        <svg class="graph-svg" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+          <polygon class="graph-area" points="" />
+          <polyline class="graph-line" points="" vector-effect="non-scaling-stroke" />
+        </svg>
       </div>
     </div>
   </div>
@@ -815,6 +847,140 @@
                 <div class="cfg-slider-wrap">
                   <input type="range" id="marginBottom_custom" min="0" max="200" value="0" class="cfg-slider">
                   <span id="marginBottom_customVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- センサーグラフ -->
+        <li class="cfg-reorder-item cfg-hub-item" data-key="graph">
+          <div class="cfg-hub-header">
+            <span class="cfg-reorder-handle"><span></span><span></span><span></span></span>
+            <span class="cfg-hub-name" data-i18n="block.graph">センサーグラフ</span>
+            <span class="cfg-hub-chevron"></span>
+          </div>
+          <div class="cfg-hub-detail">
+            <div class="cfg-row">
+              <label class="cfg-label" data-i18n="label.graphSensor">センサー</label>
+              <select id="graphSensor" class="cfg-select">
+                <option value="cpu" data-i18n="sensor.cpu">CPU温度</option>
+                <option value="gpu" data-i18n="sensor.gpu">GPU温度</option>
+                <option value="liq" data-i18n="sensor.liq">冷却水温</option>
+                <option value="cpuLoad" data-i18n="sensor.cpuLoad">CPU使用率</option>
+                <option value="gpuLoad" data-i18n="sensor.gpuLoad">GPU使用率</option>
+              </select>
+            </div>
+            <div class="cfg-row">
+              <label class="cfg-label" data-i18n="label.graphSpan">期間</label>
+              <select id="graphMinutes" class="cfg-select">
+                <option value="1" data-i18n="span.m1">1分</option>
+                <option value="3" data-i18n="span.m3">3分</option>
+                <option value="5" data-i18n="span.m5">5分</option>
+                <option value="10" data-i18n="span.m10">10分</option>
+              </select>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="graphShowValue" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.graphShowValue">現在値を表示</span>
+              </label>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="graphFill" class="cfg-checkbox" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="opt.graphFill">塗りつぶし</span>
+              </label>
+            </div>
+            <div class="cfg-row cfg-toggle-row">
+              <label class="cfg-toggle-label">
+                <input type="checkbox" id="advGraph" class="cfg-checkbox cfg-adv-toggle" />
+                <span class="cfg-toggle-track"><span class="cfg-toggle-thumb"></span></span>
+                <span data-i18n="adv.sizeMargin">詳細設定</span>
+              </label>
+            </div>
+            <div class="cfg-adv-detail" id="advDetailGraph">
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.font">フォント</label>
+                <select id="font_graph" class="cfg-select cfg-blockfont">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="'Press Start 2P', monospace">Press Start 2P</option>
+                  <option value="'Montserrat', sans-serif">Montserrat</option>
+                  <option value="'Doto', sans-serif">Doto</option>
+                  <option value="'Major Mono Display', monospace">Major Mono Display</option>
+                  <option value="'Orbitron', sans-serif">Orbitron</option>
+                  <option value="'Roboto', sans-serif">Roboto</option>
+                  <option value="'Comfortaa', sans-serif">Comfortaa</option>
+                  <option value="'Racing Sans One', sans-serif">Racing Sans One</option>
+                  <option value="'Abril Fatface', cursive">Abril Fatface</option>
+                  <option value="'Quicksand', sans-serif">Quicksand</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.weight">太さ</label>
+                <div class="cfg-segment cfg-blockweight" id="weightSeg_graph" role="group">
+                  <button type="button" class="cfg-seg-btn" data-val="">既定</button>
+                  <button type="button" class="cfg-seg-btn" data-val="300">L</button>
+                  <button type="button" class="cfg-seg-btn" data-val="normal">N</button>
+                  <button type="button" class="cfg-seg-btn" data-val="700">B</button>
+                  <button type="button" class="cfg-seg-btn" data-val="900">Bk</button>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.color">色</label>
+                <div class="cfg-blockcolor-wrap">
+                  <label class="cfg-mini-toggle">
+                    <input type="checkbox" id="colorUse_graph" class="cfg-checkbox cfg-blockcolor-use" />
+                    <span data-i18n="opt.colorOverride">個別指定</span>
+                  </label>
+                  <input type="color" id="color_graph" value="#ffffff" class="cfg-color cfg-blockcolor" />
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.blend">ブレンド</label>
+                <select id="blend_graph" class="cfg-select cfg-blockblend">
+                  <option value="" data-i18n="blend.inherit">（全体に従う）</option>
+                  <option value="normal" data-i18n="blend.normal">通常</option>
+                  <option value="multiply" data-i18n="blend.multiply">乗算</option>
+                  <option value="screen" data-i18n="blend.screen">スクリーン</option>
+                  <option value="overlay" data-i18n="blend.overlay">オーバーレイ</option>
+                  <option value="difference" data-i18n="blend.difference">差の絶対値</option>
+                  <option value="exclusion" data-i18n="blend.exclusion">除外</option>
+                  <option value="color-dodge" data-i18n="blend.colorDodge">覆い焼き</option>
+                  <option value="color-burn" data-i18n="blend.colorBurn">焼き込み</option>
+                  <option value="hard-light" data-i18n="blend.hardLight">ハードライト</option>
+                  <option value="soft-light" data-i18n="blend.softLight">ソフトライト</option>
+                  <option value="luminosity" data-i18n="blend.luminosity">輝度</option>
+                </select>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.graphHeight">高さ</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="graphHeight" min="16" max="80" value="30" class="cfg-slider">
+                  <span id="graphHeightVal" class="cfg-slider-val">30px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.graphWidth">幅</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="graphWidth" min="30" max="100" value="50" class="cfg-slider">
+                  <span id="graphWidthVal" class="cfg-slider-val">50%</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginTop">上の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginTop_graph" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginTop_graphVal" class="cfg-slider-val">0px</span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <label class="cfg-label" data-i18n="label.marginBottom">下の余白</label>
+                <div class="cfg-slider-wrap">
+                  <input type="range" id="marginBottom_graph" min="0" max="200" value="0" class="cfg-slider">
+                  <span id="marginBottom_graphVal" class="cfg-slider-val">0px</span>
                 </div>
               </div>
             </div>

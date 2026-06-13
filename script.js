@@ -76,6 +76,19 @@ document.addEventListener("DOMContentLoaded", () => {
     "sensor.memPct": ["メモリ使用率", "Memory usage"],
     "block.custom": ["カスタムテキスト", "Custom text"],
     "label.text": ["テキスト", "Text"],
+    "block.graph": ["センサーグラフ①", "Sensor graph ①"],
+    "block.graph2": ["センサーグラフ②", "Sensor graph ②"],
+    "block.graph3": ["センサーグラフ③", "Sensor graph ③"],
+    "label.graphSensor": ["センサー", "Sensor"],
+    "label.graphSpan": ["期間", "Time span"],
+    "span.m1": ["1分", "1 min"],
+    "span.m3": ["3分", "3 min"],
+    "span.m5": ["5分", "5 min"],
+    "span.m10": ["10分", "10 min"],
+    "opt.graphShowValue": ["現在値を表示", "Show current value"],
+    "opt.graphFill": ["塗りつぶし", "Fill area"],
+    "label.graphHeight": ["高さ", "Height"],
+    "label.graphWidth": ["幅", "Width"],
     "hint.hiddenZone": ["ここにドラッグした要素は時計に表示されません", "Items dragged here won’t show on the clock"],
     "label.font": ["フォント", "Font"],
     "opt.customFont": ["カスタム（PCのフォント）", "Custom (PC font)"],
@@ -271,6 +284,9 @@ document.addEventListener("DOMContentLoaded", () => {
     bgImageCache = (typeof cur === "string" && cur) ? cur : "";
     applyCustomizations();
   }
+  // Last-applied color-layer fill {img, col, op}, used to crossfade the
+  // #background-overlay when the solid/gradient fill changes.
+  let lastBgFill = null;
 
   // ---- i18n helpers ----
   function getLang() {
@@ -362,17 +378,22 @@ document.addEventListener("DOMContentLoaded", () => {
     marginTop_date:"0",marginBottom_date:"0",marginTop_second:"10",marginBottom_second:"10",
     marginTop_clock:"0",marginBottom_clock:"0",marginTop_weather:"0",marginBottom_weather:"0",
     marginTop_sensors:"0",marginBottom_sensors:"0",marginTop_custom:"0",marginBottom_custom:"0",
+    marginTop_graph:"0",marginBottom_graph:"0",marginTop_graph2:"0",marginBottom_graph2:"0",marginTop_graph3:"0",marginBottom_graph3:"0",
+    graphSensor:"cpu",graphMinutes:"1",graphShowValue:"true",graphFill:"true",graphHeight:"30",graphWidth:"50",
+    graph2Sensor:"gpu",graph2Minutes:"1",graph2ShowValue:"true",graph2Fill:"true",graph2Height:"30",graph2Width:"50",
+    graph3Sensor:"liq",graph3Minutes:"1",graph3ShowValue:"true",graph3Fill:"true",graph3Height:"30",graph3Width:"50",
     advDate:"false",advClock:"false",advSecond:"false",advWeather:"false",advSensors:"false",advCustom:"false",
+    advGraph:"false",advGraph2:"false",advGraph3:"false",
     is12Hour:"false",dotShape:"square",textScale:"100",dateFormat:"M/D ddd",
     bgOverlay:"none",overlayIntensity:"50",customText:"Custom Text",customTextPos:"top",
-    layoutOrder:"date,second,clock,weather,sensors,custom",
+    layoutOrder:"date,second,clock,weather,sensors,custom,graph,graph2,graph3",
     sensorOrder:"cpu,gpu,liq,cpuLoad,gpuLoad,cpuFan,gpuFan,memGB,memPct",
-    hiddenBlocks:"custom",hiddenSensors:"cpuLoad,gpuLoad,cpuFan,gpuFan,memGB,memPct",previewModel:"circle",
+    hiddenBlocks:"custom,graph,graph2,graph3",hiddenSensors:"cpuLoad,gpuLoad,cpuFan,gpuFan,memGB,memPct",previewModel:"circle",
     weatherCity:"Tokyo",weatherUnit:"metric",showSeconds:"false",digitAnim:"none",
   };
   // per-block override keys (font/weight/color/blend) for each layout block
   const BLOCK_OVERRIDE_KEYS = [];
-  ["date","clock","second","weather","sensors","custom"].forEach(b => {
+  ["date","clock","second","weather","sensors","custom","graph","graph2","graph3"].forEach(b => {
     BLOCK_OVERRIDE_KEYS.push(`font_${b}`,`customFont_${b}`,`weight_${b}`,`color_${b}`,`colorUse_${b}`,`blend_${b}`);
   });
   // every key we export = defaults + per-block overrides
@@ -398,6 +419,10 @@ document.addEventListener("DOMContentLoaded", () => {
         ringGrow:"true", ringMotion:"smooth", blendMode:"normal",
         textGlow:"true", glowColorUse:"true", glowColor:"#00e5a8",
         textShadow:"false",
+        // show a single CPU sparkline instead of the numeric sensors
+        graphSensor:"cpu",
+        hiddenBlocks:"custom,sensors,graph2,graph3",
+        layoutOrder:"date,second,clock,weather,sensors,graph,custom,graph2,graph3",
       },
     },
     ocean: {
@@ -433,6 +458,10 @@ document.addEventListener("DOMContentLoaded", () => {
         secondRing:"true", ringStyle:"dot", ringColorMode:"gradient", ringPreset:"pinkPurple",
         ringGrow:"true", ringMotion:"smooth", textShadow:"false", blendMode:"normal",
         textGlow:"true", glowColorUse:"true", glowColor:"#ff4dff", bgGradOn:"false",
+        // show a single CPU sparkline instead of the numeric sensors
+        graphSensor:"cpu",
+        hiddenBlocks:"custom,sensors,graph2,graph3",
+        layoutOrder:"date,second,clock,weather,sensors,graph,custom,graph2,graph3",
       },
     },
     mono: {
@@ -465,6 +494,10 @@ document.addEventListener("DOMContentLoaded", () => {
         secondRing:"false", secondGrow:"true", barLength:"90",
         textShadow:"false", textGlow:"true", glowColorUse:"true", glowColor:"#33ff66",
         blendMode:"normal", bgGradOn:"false", dateFormat:"ddd, MMM D",
+        // monitoring dashboard: CPU + GPU sparklines instead of numeric sensors
+        graphSensor:"cpu", graph2Sensor:"gpu",
+        hiddenBlocks:"custom,sensors,graph3",
+        layoutOrder:"date,second,clock,weather,sensors,graph,graph2,custom,graph3",
       },
     },
     sakura: {
@@ -651,14 +684,32 @@ document.addEventListener("DOMContentLoaded", () => {
       // The color layer sits above the image: a solid tint or a gradient wash,
       // dimmed by the opacity slider. With no image it's the full background;
       // with an image, lower opacity lets the photo show through.
-      overlay.style.opacity = (Math.max(0, Math.min(100, +bgOpacity)) / 100).toString();
-      if (gradOn) {
-        overlay.style.backgroundColor = "transparent";
-        overlay.style.backgroundImage = gradStr;
-      } else {
-        overlay.style.backgroundImage = "none";
-        overlay.style.backgroundColor = bgColor;
+      const newOp  = (Math.max(0, Math.min(100, +bgOpacity)) / 100).toString();
+      const newImg = gradOn ? gradStr : "none";
+      const newCol = gradOn ? "transparent" : bgColor;
+      overlay.style.opacity = newOp;
+      overlay.style.backgroundImage = newImg;
+      overlay.style.backgroundColor = newCol;
+
+      // Crossfade the fill change (solid<->gradient, color/gradient tweaks):
+      // background-image can't be CSS-transitioned, so show the OLD fill on a
+      // dedicated layer above and fade it out to reveal the new fill below.
+      const fade = $("#background-overlay-fade");
+      const fillChanged = lastBgFill &&
+        (lastBgFill.img !== newImg || lastBgFill.col !== newCol);
+      if (fade && fillChanged) {
+        // Show the OLD fill on the fade layer and animate it out, revealing the
+        // new fill underneath. Uses the Web Animations API (not a CSS transition
+        // + reflow), which reliably plays even amid other repaints; the layer's
+        // resting opacity stays 0 (CSS) so it's invisible between crossfades.
+        fade.style.backgroundImage = lastBgFill.img;
+        fade.style.backgroundColor = lastBgFill.col;
+        fade.animate(
+          [{ opacity: lastBgFill.op }, { opacity: 0 }],
+          { duration: 450, easing: "ease" }
+        );
       }
+      lastBgFill = { img: newImg, col: newCol, op: newOp };
     }
     // blur applies only to the background image element
     if (bgImgEl) bgImgEl.style.filter = +bgBlur > 0 ? `blur(${bgBlur}px)` : "";
@@ -692,7 +743,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const globalBlend = LS.get("blendMode", "normal") || "normal";
     const ringBlend = LS.get("ringBlend", "") || "";
     // gather per-block blends to know if any block overrides
-    const blockBlends = ["date","clock","second","weather","sensors","custom"]
+    const blockBlends = ["date","clock","second","weather","sensors","custom", ...GRAPH_BLOCKS]
       .map(k => LS.get(`blend_${k}`, "") || "");
     const anyBlend = globalBlend !== "normal"
       || (ringBlend && ringBlend !== "normal")
@@ -772,7 +823,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const shadowOn = LS.get("textShadow") === "true";
     ['#date','#clock','#cpuTemp','#gpuTemp','#liqTemp','.label','#ampm',
      '#weather-icon','#weather-temp','#weather-desc','.status-item .temp',
-     '#custom-text'].forEach(sel => {
+     '#custom-text','.graph-head'].forEach(sel => {
       $$(sel).forEach(el => el.classList.toggle('text-shadow', shadowOn));
     });
     $$(".dot").forEach(el => el.classList.toggle("shadow-dot", shadowOn));
@@ -813,7 +864,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // display edge so preview and device match). Values clamp to 0..200.
     // Keys: marginTop_<block> / marginBottom_<block> for every layout block.
     const clampMargin = v => Math.max(0, Math.min(200, Number.isFinite(+v) ? +v : 0));
-    ["date","second","clock","weather","sensors","custom"].forEach(key => {
+    ["date","second","clock","weather","sensors","custom", ...GRAPH_BLOCKS].forEach(key => {
       const el = document.querySelector(`#app-content [data-block="${key}"]`);
       if (!el) return;
       // second bar defaults to a 10px top/bottom margin; others default to 0
@@ -874,6 +925,34 @@ document.addEventListener("DOMContentLoaded", () => {
     if (wbEl) wbEl.style.fontSize = pxf(22, fWeather);
     if (ctEl) ctEl.style.fontSize = pxf(18, fCustom);
 
+    // sensor graphs: sparkline dimensions + caption for each graph block,
+    // preview-scaled like text. Value caption can be hidden (label stays).
+    const sensorNames = { cpu:"CPU", gpu:"GPU", liq:"LIQ", cpuLoad:"CPU%", gpuLoad:"GPU%" };
+    GRAPH_BLOCKS.forEach(key => {
+      const blockEl = document.querySelector(`#app-content [data-block="${key}"]`);
+      if (!blockEl) return;
+      const svgEl = blockEl.querySelector(".graph-svg");
+      if (svgEl) {
+        const gh = Math.max(16, Math.min(80, +LS.get(`${key}Height`, 30) || 30));
+        const gw = Math.max(30, Math.min(100, +LS.get(`${key}Width`, 50) || 50));
+        svgEl.style.height = pxv(gh);
+        svgEl.style.width = `${gw}%`;
+      }
+      const headEl = blockEl.querySelector(".graph-head");
+      if (headEl) headEl.style.fontSize = pxv(24);
+      // value caption visibility (label always stays visible)
+      const valEl = blockEl.querySelector(".graph-value");
+      if (valEl) valEl.style.display = LS.get(`${key}ShowValue`, "true") === "true" ? "" : "none";
+      const areaEl = blockEl.querySelector(".graph-area");
+      if (areaEl) areaEl.style.display = LS.get(`${key}Fill`, "true") === "true" ? "" : "none";
+      const labelEl = blockEl.querySelector(".graph-label");
+      if (labelEl) {
+        const sensor = LS.get(`${key}Sensor`, GRAPH_DEFAULT_SENSOR[key] || "cpu");
+        labelEl.textContent = sensorNames[sensor] || "CPU";
+      }
+    });
+    renderGraph();
+
     // applyCustomizations just rewrote all font-sizes to the 100% baseline
     // (preview-scaled where applicable). Re-capture those baselines and re-apply
     // the current text scale, so changing any setting never resets the scale.
@@ -888,9 +967,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---- Layout order (drag-to-reorder) ----
-  // The five reorderable blocks, keyed by their data-block attribute.
-  const LAYOUT_BLOCKS = ["date","second","clock","weather","sensors","custom"];
-  const DEFAULT_LAYOUT = "date,second,clock,weather,sensors,custom";
+  // The reorderable blocks, keyed by their data-block attribute.
+  const GRAPH_BLOCKS = ["graph","graph2","graph3"];
+  // default source sensor per graph (used when nothing is saved yet)
+  const GRAPH_DEFAULT_SENSOR = { graph: "cpu", graph2: "gpu", graph3: "liq" };
+  const LAYOUT_BLOCKS = ["date","second","clock","weather","sensors","custom", ...GRAPH_BLOCKS];
+  const DEFAULT_LAYOUT = "date,second,clock,weather,sensors,custom,graph,graph2,graph3";
+
+  // One-time migration: the graph blocks were added after users may have saved a
+  // layout. Keep them hidden for existing users until they enable them.
+  if (localStorage.getItem("hiddenBlocks") !== null && LS.get("graphIntroduced") !== "2") {
+    const hb = (localStorage.getItem("hiddenBlocks") || "")
+      .split(",").map(s => s.trim()).filter(Boolean);
+    GRAPH_BLOCKS.forEach(g => { if (!hb.includes(g)) hb.push(g); });
+    LS.set("hiddenBlocks", hb.join(","));
+  }
+  LS.set("graphIntroduced", "2");
 
   // All selectable sensor items, keyed by data-sensor.
   const SENSOR_ITEMS = ["cpu","gpu","liq","cpuLoad","gpuLoad","cpuFan","gpuFan","memGB","memPct"];
@@ -919,7 +1011,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Which blocks are hidden (sent to the "non-display" zone). Comma-joined set.
   function getHiddenBlocks() {
-    const DEFAULT_HIDDEN_BLOCKS = "custom";
+    const DEFAULT_HIDDEN_BLOCKS = "custom,graph,graph2,graph3";
     const raw = LS.get("hiddenBlocks", DEFAULT_HIDDEN_BLOCKS);
     return (raw == null ? DEFAULT_HIDDEN_BLOCKS : raw)
       .split(",").map(s => s.trim()).filter(k => LAYOUT_BLOCKS.includes(k));
@@ -2031,6 +2123,144 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ---- Sensor history (sparkline graph block) ----
+  // In-memory history of recent sensor values: { key: [[timestamp, value], ...] }.
+  // History is persisted to localStorage so the graph survives reloads AND is
+  // shared across views: the always-on clock (Kraken) view is the source of
+  // truth and writes it; the Configure preview loads it and follows along via
+  // storage events, so opening Configure shows the device's continuous history
+  // instead of resetting to empty.
+  const GRAPH_KEYS = ["cpu","gpu","liq","cpuLoad","gpuLoad"];
+  const graphHistory = { cpu:[], gpu:[], liq:[], cpuLoad:[], gpuLoad:[] };
+  const GRAPH_MAX_MS = 11 * 60 * 1000; // a little over the largest window (10 min)
+  const GRAPH_STORE_KEY = "graphHistoryV1";
+  let graphHasRealData = false;
+  let graphDemoTimer = null;
+  let graphPersistAt = 0;
+
+  // Load persisted history into memory (dropping points outside the max window).
+  // Returns true if any data was loaded.
+  function loadGraphHistory() {
+    try {
+      const raw = localStorage.getItem(GRAPH_STORE_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      const cutoff = Date.now() - GRAPH_MAX_MS;
+      let any = false;
+      GRAPH_KEYS.forEach(k => {
+        const arr = Array.isArray(data[k]) ? data[k] : [];
+        graphHistory[k] = arr.filter(p => Array.isArray(p) && typeof p[0] === "number" && p[0] >= cutoff);
+        if (graphHistory[k].length) any = true;
+      });
+      return any;
+    } catch { return false; }
+  }
+
+  // Persist history (throttled). Only the clock view calls this, to keep one
+  // canonical timeline and avoid two views clobbering each other.
+  function persistGraphHistory() {
+    const now = Date.now();
+    if (now - graphPersistAt < 2000) return;
+    graphPersistAt = now;
+    try {
+      const out = {};
+      GRAPH_KEYS.forEach(k => { out[k] = graphHistory[k]; });
+      localStorage.setItem(GRAPH_STORE_KEY, JSON.stringify(out));
+    } catch {}
+  }
+
+  function recordGraphSamples(values, opts = {}) {
+    const now = Date.now();
+    GRAPH_KEYS.forEach(k => {
+      const v = values[k];
+      if (typeof v !== "number" || Number.isNaN(v)) return;
+      const arr = graphHistory[k];
+      arr.push([now, v]);
+      while (arr.length && arr[0][0] < now - GRAPH_MAX_MS) arr.shift();
+    });
+    if (opts.persist) persistGraphHistory();
+    renderGraph();
+  }
+
+  // Load any existing history immediately so the first paint already shows it.
+  const graphLoadedFromStore = loadGraphHistory();
+
+  // Draw one graph block's series as an SVG polyline (plus an area fill polygon).
+  // X is anchored to "now" at the right edge, so the line slides left as time
+  // passes. Y auto-scales to the visible data with a minimum span so idle
+  // values don't look like wild swings.
+  function renderGraphBlock(gkey) {
+    const blockEl = document.querySelector(`#app-content [data-block="${gkey}"]`);
+    if (!blockEl) return;
+    const line = blockEl.querySelector(".graph-line");
+    const area = blockEl.querySelector(".graph-area");
+    if (!line) return;
+    const sensor = LS.get(`${gkey}Sensor`, GRAPH_DEFAULT_SENSOR[gkey] || "cpu");
+    const mins = Math.max(1, Math.min(10, +LS.get(`${gkey}Minutes`, 1) || 1));
+    const win  = mins * 60 * 1000;
+    const now  = Date.now();
+    const pts  = (graphHistory[sensor] || []).filter(p => p[0] >= now - win);
+    const isLoad = sensor.endsWith("Load");
+
+    // current value caption + temp warning color (temps only)
+    const cur = pts.length ? pts[pts.length - 1][1] : null;
+    const valEl = blockEl.querySelector(".graph-value");
+    if (valEl) valEl.textContent = cur == null ? "--" : `${Math.round(cur)}${isLoad ? "%" : "°"}`;
+    const warnOn = LS.get("tempWarnOn", "false") === "true";
+    const warnAt = +LS.get("tempWarn", 80) || 80;
+    const hot = warnOn && !isLoad && cur != null && cur >= warnAt;
+    blockEl.classList.toggle("graph-warn", hot);
+
+    if (pts.length < 2) {
+      line.setAttribute("points", "");
+      if (area) area.setAttribute("points", "");
+      return;
+    }
+    let lo = Infinity, hi = -Infinity;
+    pts.forEach(p => { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; });
+    const minSpan = isLoad ? 10 : 4;
+    if (hi - lo < minSpan) { const m = (hi + lo) / 2; lo = m - minSpan / 2; hi = m + minSpan / 2; }
+    const H = 30, PAD = 2; // viewBox is 100x30
+    const sx = t => ((1 - (now - t) / win) * 100);
+    const sy = v => H - PAD - ((v - lo) / (hi - lo)) * (H - PAD * 2);
+    const linePts = pts.map(p => `${sx(p[0]).toFixed(2)},${sy(p[1]).toFixed(2)}`).join(" ");
+    line.setAttribute("points", linePts);
+    if (area) {
+      const x0 = sx(pts[0][0]).toFixed(2);
+      const x1 = sx(pts[pts.length - 1][0]).toFixed(2);
+      area.setAttribute("points", `${x0},${H} ${linePts} ${x1},${H}`);
+    }
+  }
+  function renderGraph() { GRAPH_BLOCKS.forEach(renderGraphBlock); }
+
+  // Browser-only demo: CAM feeds real monitoring data to both the clock and the
+  // Configure view, but a plain browser has none — synthesize gently wandering
+  // values so the graph can be previewed and styled. Skipped when we already
+  // loaded real history from storage (so the preview mirrors the device rather
+  // than overwriting it with fake data). Stops the moment real data arrives.
+  function startGraphDemoIfIdle() {
+    if (isKraken || graphHasRealData || graphDemoTimer || graphLoadedFromStore) return;
+    const state = { cpu: 52, gpu: 46, liq: 33, cpuLoad: 28, gpuLoad: 20 };
+    const range = { cpu: [38, 78], gpu: [35, 72], liq: [28, 42], cpuLoad: [3, 98], gpuLoad: [3, 98] };
+    const step = (s) => {
+      GRAPH_KEYS.forEach(k => {
+        const [lo, hi] = range[k];
+        s[k] = Math.max(lo, Math.min(hi, s[k] + (Math.random() - 0.5) * 2.2));
+      });
+    };
+    // backfill ~10 min of history (every 3s) so the sparkline is populated and
+    // looks good immediately in the preview, instead of building up from empty.
+    const now = Date.now();
+    const back = { ...state };
+    const seeded = [];
+    for (let t = now - GRAPH_MAX_MS; t <= now; t += 3000) { step(back); seeded.push([t, { ...back }]); }
+    seeded.forEach(([t, vals]) => GRAPH_KEYS.forEach(k => graphHistory[k].push([t, vals[k]])));
+    Object.assign(state, back);
+    renderGraph();
+    graphDemoTimer = setInterval(() => { step(state); recordGraphSamples(state); }, 1000);
+  }
+  setTimeout(startGraphDemoIfIdle, 2500);
+
   // ---- NZXT monitoring ----
   window.nzxt = window.nzxt || {};
   window.nzxt.v1 = window.nzxt.v1 || {};
@@ -2085,7 +2315,42 @@ document.addEventListener("DOMContentLoaded", () => {
         : `${memGB.toFixed(1)}GB`;
     }
     put("memPct", memPct, "%");
+
+    // sensor graph: record this tick. On the first real sample, stop the demo;
+    // wipe its synthetic points only if we had no real history loaded.
+    if (!graphHasRealData) {
+      graphHasRealData = true;
+      if (graphDemoTimer) {
+        clearInterval(graphDemoTimer);
+        graphDemoTimer = null;
+        if (!graphLoadedFromStore) GRAPH_KEYS.forEach(k => { graphHistory[k] = []; });
+      }
+    }
+    // The always-on clock view is the canonical writer (persist:true). Other
+    // views (Configure preview) only mirror via storage events, so they don't
+    // persist and overwrite the device's continuous timeline.
+    recordGraphSamples({
+      cpu: cpu?.temperature,
+      gpu: gpu?.temperature,
+      liq: kraken?.liquidTemperature,
+      cpuLoad: pct(cpu?.load),
+      gpuLoad: pct(gpu?.load),
+    }, { persist: isKraken });
   };
+
+  // Mirror graph history across views: when the clock view persists new data,
+  // every other view (e.g. the Configure preview) reloads and redraws so its
+  // sparkline follows the device's continuous timeline instead of resetting.
+  window.addEventListener("storage", (e) => {
+    if (e.key === GRAPH_STORE_KEY) { loadGraphHistory(); renderGraph(); }
+  });
+  // Flush the latest history when the clock view is hidden/closed so a reopen
+  // (or the Configure preview) picks up the most recent points.
+  if (isKraken) {
+    const flush = () => { graphPersistAt = 0; persistGraphHistory(); };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", () => { if (document.hidden) flush(); });
+  }
 
   // ---- Init ----
   updateClock();
@@ -2106,6 +2371,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const configUI = $("#config-ui");
   if (!isKraken && configUI) {
     configUI.style.display = "flex";
+
+    // The layout tab ships one sensor-graph hub item (data-key="graph"); clone
+    // it for graph2/graph3 so all three share identical markup. Remap every id
+    // and the data-key/i18n so each clone binds to its own settings. Must run
+    // before applyLang() and the per-block binding loop below.
+    (function buildGraphHubClones() {
+      const tmpl = document.querySelector('.cfg-hub-item[data-key="graph"]');
+      const list = $("#layoutReorder");
+      if (!tmpl || !list) return;
+      const remapId = (id, key, cap) => {
+        if (id === "advGraph") return `adv${cap}`;
+        if (id === "advDetailGraph") return `advDetail${cap}`;
+        if (id.includes("_graph")) return id.replace("_graph", `_${key}`);
+        if (id.startsWith("graph")) return key + id.slice("graph".length);
+        return id;
+      };
+      [["graph2","Graph2"],["graph3","Graph3"]].forEach(([key, cap]) => {
+        if (document.querySelector(`.cfg-hub-item[data-key="${key}"]`)) return;
+        const li = tmpl.cloneNode(true);
+        li.dataset.key = key;
+        li.querySelectorAll("[id]").forEach(el => { el.id = remapId(el.id, key, cap); });
+        const nameEl = li.querySelector(".cfg-hub-name");
+        if (nameEl) nameEl.setAttribute("data-i18n", `block.${key}`);
+        list.appendChild(li);
+      });
+    })();
 
     applyLang();
     applyCustomizations();
@@ -2417,6 +2708,9 @@ document.addEventListener("DOMContentLoaded", () => {
       { cap: "Weather", key: "weather", size: true  },
       { cap: "Sensors", key: "sensors", size: true  },
       { cap: "Custom",  key: "custom",  size: true  },
+      { cap: "Graph",   key: "graph",   size: false },
+      { cap: "Graph2",  key: "graph2",  size: false },
+      { cap: "Graph3",  key: "graph3",  size: false },
     ];
 
     ADV_BLOCKS.forEach(({ cap, key, size }) => {
@@ -2491,6 +2785,18 @@ document.addEventListener("DOMContentLoaded", () => {
       // second bar: length of the divider track (second block only)
       if (key === "second") {
         bindSlider("barLength", "barLength", "barLengthVal", v=>`${v}%`, () => applyCustomizations());
+      }
+      // sensor graph: source sensor, time span, value/fill toggles, size sliders
+      if (GRAPH_BLOCKS.includes(key)) {
+        // seed select defaults if unset so the UI matches what the graph renders
+        if (LS.get(`${key}Sensor`) === null) LS.set(`${key}Sensor`, GRAPH_DEFAULT_SENSOR[key] || "cpu");
+        if (LS.get(`${key}Minutes`) === null) LS.set(`${key}Minutes`, "1");
+        bindSelect(`${key}Sensor`, `${key}Sensor`, () => applyCustomizations());
+        bindSelect(`${key}Minutes`, `${key}Minutes`, () => applyCustomizations());
+        bindToggle(`${key}ShowValue`, `${key}ShowValue`, () => applyCustomizations(), { defaultOn: true });
+        bindToggle(`${key}Fill`, `${key}Fill`, () => applyCustomizations(), { defaultOn: true });
+        bindSlider(`${key}Height`, `${key}Height`, `${key}HeightVal`, v=>`${v}px`, () => applyCustomizations());
+        bindSlider(`${key}Width`,  `${key}Width`,  `${key}WidthVal`,  v=>`${v}%`,  () => applyCustomizations());
       }
       // top/bottom margin sliders (px)
       bindSlider(`marginTop_${key}`,    `marginTop_${key}`,    `marginTop_${key}Val`,    v=>`${v}px`, () => applyCustomizations());
@@ -3299,7 +3605,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cIn && custom) cIn.value = fv.replace(/^['"]/, "").replace(/['"],?\s*sans-serif$/, "").replace(/['"]$/, "");
       }
       // per-block custom font selectors: restore __custom__ + show/hide input row
-      ["date","clock","second","weather","sensors","custom"].forEach(key => {
+      ["date","clock","second","weather","sensors","custom","graph","graph2","graph3"].forEach(key => {
         const sel = $(`#font_${key}`);
         if (!sel) return;
         const saved = LS.get(`font_${key}`, "");

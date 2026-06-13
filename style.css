@@ -38,7 +38,16 @@ html, body {
   inset: 0;
   z-index: 1;
   background-color: rgba(0, 0, 0, 1);
-  transition: background-color 0.45s ease, opacity 0.45s ease;
+  transition: opacity 0.45s ease;
+}
+/* transient layer that holds the OLD color fill and fades out to crossfade
+   solid<->gradient changes (background-image can't be CSS-transitioned). */
+#background-overlay-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ===== LAYOUT ===== */
@@ -376,6 +385,53 @@ body:not(.show-seconds) .seconds { display: none; }
 }
 
 #weather-icon { font-size: 28px; }
+
+/* ===== SENSOR GRAPH (sparkline) ===== */
+/* number + graph sit side by side: caption on the left, sparkline on the right */
+.graph-block {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.graph-head {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1.1;
+  font-size: 24px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.graph-label { opacity: 0.6; letter-spacing: 1px; }
+.graph-value { font-variant-numeric: tabular-nums; }
+.graph-svg {
+  display: block;
+  width: 70%;
+  height: 30px;
+  overflow: visible;
+  flex-shrink: 0;
+}
+.graph-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.graph-area {
+  fill: currentColor;
+  opacity: 0.16;
+  stroke: none;
+}
+/* over the temperature threshold: tint the whole graph red */
+.graph-block.graph-warn { color: #ff4d4d; }
 
 /* ===== SHADOW / EFFECTS ===== */
 .text-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
@@ -1301,7 +1357,8 @@ body.preview #app-wrapper {
 }
 body.preview #background-image-prev,
 body.preview #background-image,
-body.preview #background-overlay {
+body.preview #background-overlay,
+body.preview #background-overlay-fade {
   border-radius: 50%;
 }
 
@@ -1323,6 +1380,7 @@ body.preview #config-ui {
 body.preview #background-image-prev { z-index: 0; }
 body.preview #background-image      { z-index: 1; }
 body.preview #background-overlay    { z-index: 2; }
+body.preview #background-overlay-fade { z-index: 2; }
 body.preview #app-content        { z-index: 2; position: relative; }
 
 /* Square preview (無印 Kraken / Plus: 1.54" square LCD).
@@ -1343,6 +1401,7 @@ body.preview.preview-square #app-wrapper {
 body.preview.preview-square #background-image-prev,
 body.preview.preview-square #background-image,
 body.preview.preview-square #background-overlay,
+body.preview.preview-square #background-overlay-fade,
 body.preview.preview-square #app-content {
   position: absolute;
   inset: auto;                   /* clear the full-bleed inset:0 first */
@@ -1361,6 +1420,7 @@ body.preview.preview-square #app-content {
 body.preview.preview-square #background-image-prev { z-index: 9; }
 body.preview.preview-square #background-image      { z-index: 10; }
 body.preview.preview-square #background-overlay    { z-index: 11; }
+body.preview.preview-square #background-overlay-fade { z-index: 11; }
 body.preview.preview-square #app-content        { z-index: 12; }
 body.preview.preview-square #second-ring        { z-index: 13; }
 body.preview.preview-square #overlay-fx         { z-index: 14; }
@@ -1487,10 +1547,17 @@ body.preview.preview-square #overlay-fx {
 }
 /* background layers must also lose their explicit z-index so they don't float
    above the now-auto-z-index content/ring elements */
-body:has(.blend-active) #background-image-prev,
 body:has(.blend-active) #background-image,
-body:has(.blend-active) #background-overlay {
+body:has(.blend-active) #background-overlay,
+body:has(.blend-active) #background-overlay-fade {
   z-index: auto !important;
+}
+/* The crossfade "prev"/"fade" layers hold previously-shown content. With blend
+   mode the bg layers drop to z-index:auto (DOM-order stacking), which can let
+   that stale content leak through — so hide them entirely while blending. */
+body:has(.blend-active) #background-image-prev,
+body:has(.blend-active) #background-overlay-fade {
+  display: none !important;
 }
 
 /* ===== INFO TAB ===== */
@@ -1653,6 +1720,8 @@ body.preview #app-content > [data-block].block-entering {
 #app-wrapper.text-glow .label,
 #app-wrapper.text-glow #weather-temp,
 #app-wrapper.text-glow #weather-desc,
+#app-wrapper.text-glow #weather-icon,
+#app-wrapper.text-glow .graph-head,
 #app-wrapper.text-glow #custom-text {
   text-shadow:
     0 0 4px var(--glow-color, #fff),
@@ -1665,6 +1734,13 @@ body.preview #app-content > [data-block].block-entering {
     0 0 4px var(--glow-color, #fff),
     0 0 10px var(--glow-color, #fff),
     0 0 22px var(--glow-color, #fff);
+}
+
+/* the sparkline is an SVG stroke, so glow it with a drop-shadow filter */
+#app-wrapper.text-glow .graph-svg {
+  filter:
+    drop-shadow(0 0 2px var(--glow-color, #fff))
+    drop-shadow(0 0 5px var(--glow-color, #fff));
 }
 
 /* ===== GRADIENT EDITOR ===== */
